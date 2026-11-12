@@ -28,6 +28,10 @@ import { PortGridItem } from "./PortGridItem";
 import { PortTable } from "./PortTable";
 import { ServiceCard } from "./ServiceCard";
 import { HiddenPortsDrawer } from "./HiddenPortsDrawer";
+import { HiddenServicesDrawer } from "./HiddenServicesDrawer";
+import { ServiceAliasModal } from "./ServiceAliasModal";
+import { useServiceSettings } from "../../hooks/useServiceSettings";
+import { applyServiceSettings, serviceIdentityFor } from "../../lib/service-settings";
 import { SystemInfoCard } from "./SystemInfoCard";
 import Logger from "../../lib/logger";
 import { VMsCard } from "./VMsCard";
@@ -222,7 +226,10 @@ function ServerSectionComponent({
     return sortablePorts;
   }, [visiblePorts, sortConfig]);
 
-  const groupedServices = useMemo(() => {
+  const { settings: serviceSettings, update: updateServiceSetting } = useServiceSettings(id, groupingMode === "services");
+  const [aliasTarget, setAliasTarget] = useState(null);
+
+  const allGroupedServices = useMemo(() => {
     if (groupingMode !== "services") return [];
     
     const serviceMap = new Map();
@@ -232,9 +239,9 @@ function ServerSectionComponent({
     sortedPorts.forEach((port) => {
       let serviceKey;
       let serviceName;
+      const composeProject = port.source === "docker" ? inferComposeProject(port) : null;
       
       if (port.source === "docker") {
-        const composeProject = inferComposeProject(port);
         if (composeProject) {
           serviceKey = `docker:${composeProject}`;
           serviceName = composeProject;
@@ -250,6 +257,7 @@ function ServerSectionComponent({
       if (!serviceMap.has(serviceKey)) {
         serviceMap.set(serviceKey, {
           key: serviceKey,
+          identity: serviceIdentityFor(port, composeProject),
           name: serviceName,
           isDocker: port.source === "docker",
           ports: [],
@@ -264,6 +272,26 @@ function ServerSectionComponent({
     
     return services;
   }, [sortedPorts, groupingMode, t]);
+
+  const { visible: groupedServices, hidden: hiddenServices } = useMemo(
+    () => applyServiceSettings(allGroupedServices, serviceSettings),
+    [allGroupedServices, serviceSettings]
+  );
+
+  const servicePortCount = useMemo(
+    () => groupedServices.reduce((total, service) => total + service.ports.length, 0),
+    [groupedServices]
+  );
+
+  const handleSaveAlias = useCallback(
+    (service, alias) => updateServiceSetting(service.identity, { alias }),
+    [updateServiceSetting]
+  );
+
+  const setServiceHidden = useCallback(
+    (service, hidden) => updateServiceSetting(service.identity, { hidden }),
+    [updateServiceSetting]
+  );
 
   const portMood = useMemo(() => {
     if (groupingMode === "services") {
@@ -491,7 +519,7 @@ function ServerSectionComponent({
                     {portMood
                       ? portMood
                       : groupingMode === "services"
-                        ? t("{{services}} services ({{ports}} ports)", { services: groupedServices.length, ports: visiblePorts.length })
+                        ? t("{{services}} services ({{ports}} ports)", { services: groupedServices.length, ports: servicePortCount })
                         : showInternal ? t("Published: {{published}}, Internal: {{internal}} (showing internal)", { published: counts.published, internal: counts.internal }) : t("Published: {{published}}, Internal: {{internal}} (hiding internal)", { published: counts.published, internal: counts.internal })}
                   </TooltipContent>
                 </Tooltip>
@@ -559,7 +587,7 @@ function ServerSectionComponent({
                   </TooltipTrigger>
                   <TooltipContent>
                     {groupingMode === "services"
-                      ? t("{{services}} services ({{ports}} ports total)", { services: groupedServices.length, ports: visiblePorts.length })
+                      ? t("{{services}} services ({{ports}} ports total)", { services: groupedServices.length, ports: servicePortCount })
                       : showInternal ? t("Published: {{published}}, Internal: {{internal}} (showing internal)", { published: counts.published, internal: counts.internal }) : t("Published: {{published}}, Internal: {{internal}} (hiding internal)", { published: counts.published, internal: counts.internal })}
                   </TooltipContent>
                 </Tooltip>
@@ -851,6 +879,9 @@ function ServerSectionComponent({
                   <ServiceCard
                     key={service.key}
                     serviceName={service.name}
+                    serviceAlias={service.alias}
+                    onEditAlias={() => setAliasTarget(service)}
+                    onHideService={() => setServiceHidden(service, true)}
                     ports={service.ports}
                     serverId={id}
                     serverUrl={serverUrl}
@@ -883,6 +914,9 @@ function ServerSectionComponent({
                   <ServiceCard
                     key={service.key}
                     serviceName={service.name}
+                    serviceAlias={service.alias}
+                    onEditAlias={() => setAliasTarget(service)}
+                    onHideService={() => setServiceHidden(service, true)}
                     ports={service.ports}
                     serverId={id}
                     serverUrl={serverUrl}
@@ -959,6 +993,9 @@ function ServerSectionComponent({
                       <ServiceCard
                         key={service.key}
                         serviceName={service.name}
+                        serviceAlias={service.alias}
+                        onEditAlias={() => setAliasTarget(service)}
+                        onHideService={() => setServiceHidden(service, true)}
                         ports={service.ports}
                         serverId={id}
                         serverUrl={serverUrl}
@@ -1278,6 +1315,22 @@ function ServerSectionComponent({
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {groupingMode === "services" && hiddenServices.length > 0 && (
+          <div className="border-t border-slate-200 dark:border-slate-700/50">
+            <HiddenServicesDrawer
+              hiddenServices={hiddenServices}
+              onUnhide={(service) => setServiceHidden(service, false)}
+              onUnhideAll={(services) => services.forEach((service) => setServiceHidden(service, false))}
+            />
+          </div>
+        )}
+
+        <ServiceAliasModal
+          service={aliasTarget}
+          onClose={() => setAliasTarget(null)}
+          onSave={handleSaveAlias}
+        />
 
         {hiddenPorts.length > 0 && (
           <div className="border-t border-slate-200 dark:border-slate-700/50">

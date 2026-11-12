@@ -14,9 +14,14 @@ import ServiceIcon from "@/components/ui/ServiceIcon";
 import { ClickablePortBadge } from "./service-card-utils";
 import { GlobeIconBadge, ExternalUrlChip } from "@/components/autoxpose";
 import { AggregatedHealthDot } from "./AggregatedHealthDot";
+import { ServiceAliasButton, ServiceHideButton } from "./ServiceActions";
+import { formatServiceName } from "../../lib/service-settings";
 
 export function ServiceCardList({
   serviceName,
+  serviceAlias,
+  onEditAlias,
+  onHideService,
   ports,
   serverId,
   serverUrl,
@@ -84,7 +89,7 @@ export function ServiceCardList({
       <div
         data-service-card-header="true"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+        className="group flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
       >
         <div className="flex items-center space-x-3">
           {selectionMode && (
@@ -111,8 +116,9 @@ export function ServiceCardList({
           <div className="flex flex-col">
             <div className="flex items-center space-x-2">
               <span className="font-medium text-slate-900 dark:text-slate-100">
-                {serviceName}
+                {formatServiceName(serviceName, serviceAlias)}
               </span>
+              <ServiceAliasButton onEditAlias={onEditAlias} />
             </div>
             <div className="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400">
               <span
@@ -173,6 +179,7 @@ export function ServiceCardList({
               hostOverride={hostOverride}
             />
           ))}
+          <ServiceHideButton onHideService={onHideService} />
         </div>
       </div>
 

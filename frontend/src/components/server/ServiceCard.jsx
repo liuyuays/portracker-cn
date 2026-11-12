@@ -4,6 +4,9 @@ import { ServiceCardTableRow } from "./ServiceCardTable";
 
 export function ServiceCard({
   serviceName,
+  serviceAlias,
+  onEditAlias,
+  onHideService,
   ports,
   serverId,
   serverUrl,
@@ -31,6 +34,9 @@ export function ServiceCard({
 }) {
   const commonProps = {
     serviceName,
+    serviceAlias,
+    onEditAlias,
+    onHideService,
     ports,
     serverId,
     serverUrl,

@@ -647,6 +647,19 @@ function updateLocalServerPlatformType(platformType, appDebugEnabled = false) {
   }
 }
 
+// Per-service display alias and "hide whole service" flag, keyed by a stable
+// service identity (compose project, container name or process name).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS service_settings (
+    server_id   TEXT NOT NULL,
+    service_key TEXT NOT NULL,
+    alias       TEXT,
+    hidden      INTEGER NOT NULL DEFAULT 0,
+    updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (server_id, service_key)
+  );
+`);
+
 db.peerKeys = createPeerKeyStore(db, {
   keyFile: dbPath === ":memory:" ? null : process.env.PEER_KEY_FILE || path.join(path.dirname(path.resolve(dbPath)), "peer-keys.key"),
 });

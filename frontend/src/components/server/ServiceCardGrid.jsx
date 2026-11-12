@@ -13,9 +13,14 @@ import ServiceIcon from "@/components/ui/ServiceIcon";
 import { ClickablePortBadge } from "./service-card-utils";
 import { GlobeIconBadge, ExternalUrlChip } from "@/components/autoxpose";
 import { AggregatedHealthDot } from "./AggregatedHealthDot";
+import { ServiceAliasButton, ServiceHideButton } from "./ServiceActions";
+import { formatServiceName } from "../../lib/service-settings";
 
 export function ServiceCardGrid({
   serviceName,
+  serviceAlias,
+  onEditAlias,
+  onHideService,
   ports,
   serverId,
   serverUrl,
@@ -108,9 +113,12 @@ export function ServiceCardGrid({
             {showIcons && <ServiceIcon name={serviceName} source={isDocker ? "docker" : "system"} size={24} className="flex-shrink-0" />}
             <AggregatedHealthDot ports={ports} serverId={serverId} serverUrl={serverUrl} hostOverride={hostOverride} serviceName={serviceName} isDocker={isDocker} />
             <div className="min-w-0 flex-1">
-              <h4 className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">
-                {serviceName}
-              </h4>
+              <div className="flex items-center gap-1 min-w-0">
+                <h4 className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate" title={formatServiceName(serviceName, serviceAlias)}>
+                  {formatServiceName(serviceName, serviceAlias)}
+                </h4>
+                <ServiceAliasButton onEditAlias={onEditAlias} />
+              </div>
               <div className="flex items-center space-x-2 mt-0.5">
                 <span
                   className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${
@@ -127,6 +135,7 @@ export function ServiceCardGrid({
               </div>
             </div>
           </div>
+          <ServiceHideButton onHideService={onHideService} className="ml-2" />
         </div>
 
         <div className="flex flex-wrap gap-1.5 mb-3">
@@ -210,7 +219,7 @@ export function ServiceCardGrid({
                 {showIcons && <ServiceIcon name={serviceName} source={isDocker ? "docker" : "system"} size={28} />}
                 <div>
                   <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100">
-                    {serviceName}
+                    {formatServiceName(serviceName, serviceAlias)}
                   </h3>
                   <div className="flex items-center space-x-2 mt-0.5">
                     <span

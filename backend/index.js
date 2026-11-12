@@ -18,6 +18,7 @@ const settingsRoutes = require('./routes/settings');
 const autoxposeRoutes = require('./routes/autoxpose');
 const settingsManager = require('./lib/settings-manager');
 const { registerServerRoutes } = require('./routes/servers');
+const { registerServiceSettingsRoutes } = require('./routes/service-settings');
 const recoveryManager = require('./lib/recovery-manager');
 const { enrichComposeLabelsOnPorts: enrichComposeLabelsOnPortsImpl } = require('./lib/docker/compose-attribution');
 const { getDockerHostIP } = require('./lib/docker-host');
@@ -514,6 +515,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/settings', requireAuth, settingsRoutes);
 app.use('/api/autoxpose', requireAuth, autoxposeRoutes);
 registerServerRoutes(app, { db, logger, requireAuth, validateServerInput });
+registerServiceSettingsRoutes(app, { db, logger, requireAuth });
 
 const PORT = process.env.PORT || 3000;
 
@@ -1461,6 +1463,7 @@ app.delete("/api/servers/:id", requireAuth, validateServerIdParam, (req, res) =>
       );
       db.prepare("DELETE FROM notes WHERE server_id = ?").run(serverId);
       db.prepare("DELETE FROM ignores WHERE server_id = ?").run(serverId);
+      db.prepare("DELETE FROM service_settings WHERE server_id = ?").run(serverId);
       db.prepare("DELETE FROM servers WHERE id = ?").run(serverId);
     });
     deleteTransaction();

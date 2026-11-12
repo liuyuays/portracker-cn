@@ -14,10 +14,15 @@ import { ClickablePortBadge } from "./service-card-utils";
 import { GlobeIconBadge, ExternalUrlChip } from "@/components/autoxpose";
 import { InlinePortRow } from "./ExpandedPortViews";
 import { AggregatedHealthDot } from "./AggregatedHealthDot";
+import { ServiceAliasButton, ServiceHideButton } from "./ServiceActions";
+import { formatServiceName } from "../../lib/service-settings";
 import { InternalPortDetails } from "./InternalPortDetails";
 
 export function ServiceCardTableRow({
   serviceName,
+  serviceAlias,
+  onEditAlias,
+  onHideService,
   ports,
   serverId,
   serverUrl,
@@ -113,8 +118,10 @@ export function ServiceCardTableRow({
             {showIcons && <ServiceIcon name={serviceName} source={isDocker ? "docker" : "system"} size={20} className="flex-shrink-0" />}
             <AggregatedHealthDot ports={ports} serverId={serverId} serverUrl={serverUrl} hostOverride={hostOverride} serviceName={serviceName} isDocker={isDocker} />
             <span className="font-medium text-sm text-slate-900 dark:text-slate-100">
-              {serviceName}
+              {formatServiceName(serviceName, serviceAlias)}
             </span>
+            <ServiceAliasButton onEditAlias={onEditAlias} />
+            <ServiceHideButton onHideService={onHideService} className="ml-auto" />
           </div>
         </td>
         <td className="px-4 py-3">

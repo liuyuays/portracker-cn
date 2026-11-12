@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React from "react";
 import {
   Dialog,
@@ -22,6 +23,7 @@ export function BatchHideModal({
   loading = false,
   action = "hide",
 }) {
+  const { t } = useTranslation();
   const handleConfirm = () => {
     onConfirm({
       selectedPorts: Array.from(selectedPorts),
@@ -42,16 +44,16 @@ export function BatchHideModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {isHiding ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-            {actionText} {portCount} Port{portCount !== 1 ? 's' : ''}
+            {portCount !== 1 ? t("{{action}} {{count}} Ports", { action: t(actionText), count: portCount }) : t("{{action}} {{count}} Port", { action: t(actionText), count: portCount })}
           </DialogTitle>
           <DialogDescription>
-            {actionDescription}
+            {t(actionDescription)}
           </DialogDescription>
         </DialogHeader>
         
         <div className="py-4">
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Are you sure you want to {action} {portCount} selected port{portCount !== 1 ? 's' : ''}?
+            {portCount !== 1 ? t("Are you sure you want to {{action}} {{count}} selected ports?", { action: isHiding ? t("hide") : t("show"), count: portCount }) : t("Are you sure you want to {{action}} {{count}} selected port?", { action: isHiding ? t("hide") : t("show"), count: portCount })}
           </p>
         </div>
 
@@ -61,7 +63,7 @@ export function BatchHideModal({
             onClick={onClose}
             disabled={loading}
           >
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button 
             onClick={handleConfirm}
@@ -72,12 +74,12 @@ export function BatchHideModal({
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                {actionText}ing...
+                {isHiding ? t("Hiding...") : t("Showing...")}
               </>
             ) : (
               <>
                 {isHiding ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-                {actionText} {portCount} Port{portCount !== 1 ? 's' : ''}
+                {portCount !== 1 ? t("{{action}} {{count}} Ports", { action: t(actionText), count: portCount }) : t("{{action}} {{count}} Port", { action: t(actionText), count: portCount })}
               </>
             )}
           </Button>

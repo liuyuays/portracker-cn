@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import * as React from "react"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -87,7 +88,9 @@ const DrawerDescription = React.forwardRef(({ className, ...props }, ref) => (
 ))
 DrawerDescription.displayName = "DrawerDescription"
 
-const DrawerClose = React.forwardRef(({ className, ...props }, ref) => (
+const DrawerClose = React.forwardRef(({ className, ...props }, ref) => {
+  const { t } = useTranslation();
+  return (
   <button
     ref={ref}
     className={cn(
@@ -97,9 +100,10 @@ const DrawerClose = React.forwardRef(({ className, ...props }, ref) => (
     {...props}
   >
     <X className="h-4 w-4" />
-    <span className="sr-only">Close</span>
+    <span className="sr-only">{t("Close")}</span>
   </button>
-))
+);
+})
 DrawerClose.displayName = "DrawerClose"
 
 export {

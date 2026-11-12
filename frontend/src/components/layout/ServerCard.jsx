@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from "react";
 import {
   Trash2,
@@ -25,6 +26,7 @@ import {
 import { formatBytes, formatUptime } from "@/lib/utils";
 
 function useRelativeTime(timestamp) {
+  const { t } = useTranslation();
   const [, setTick] = useState(0);
   useEffect(() => {
     if (!timestamp) return;
@@ -33,25 +35,27 @@ function useRelativeTime(timestamp) {
   }, [timestamp]);
   if (!timestamp) return null;
   const seconds = Math.floor((Date.now() - timestamp) / 1000);
-  if (seconds < 10) return "just now";
-  if (seconds < 60) return `${seconds}s ago`;
+  if (seconds < 10) return t("just now");
+  if (seconds < 60) return t("{{seconds}}s ago", { seconds });
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 60) return t("{{minutes}}m ago", { minutes });
   const hours = Math.floor(minutes / 60);
-  return `${hours}h ago`;
+  return t("{{hours}}h ago", { hours });
 }
 
 function LastRefreshedLabel({ timestamp }) {
+  const { t } = useTranslation();
   const label = useRelativeTime(timestamp);
   if (!label) return null;
   return (
     <p className="mt-1.5 text-[10px] text-slate-400 dark:text-slate-500 tracking-wide">
-      Updated {label}
+      {t("Updated {{time}}", { time: label })}
     </p>
   );
 }
 
 function ServerHealthDot({ ok, isUpdating }) {
+  const { t } = useTranslation();
   const tone = isUpdating
     ? "bg-blue-400 animate-pulse"
     : ok !== false
@@ -64,13 +68,14 @@ function ServerHealthDot({ ok, isUpdating }) {
         <TooltipTrigger asChild>
           <span className={`inline-block h-2 w-2 rounded-full flex-shrink-0 ${tone}`} />
         </TooltipTrigger>
-        <TooltipContent>{label}</TooltipContent>
+        <TooltipContent>{t(label)}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
 }
 
 function ServerCardActions({ server, onEdit, onDelete }) {
+  const { t } = useTranslation();
   const showDelete = server.id !== "local";
   return (
     <>
@@ -78,7 +83,7 @@ function ServerCardActions({ server, onEdit, onDelete }) {
         <button
           onClick={(e) => { e.stopPropagation(); onEdit(server.id); }}
           className="p-1.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400"
-          aria-label="Edit Server"
+          aria-label={t("Edit Server")}
         >
           <Pencil className="h-4 w-4" />
         </button>
@@ -86,7 +91,7 @@ function ServerCardActions({ server, onEdit, onDelete }) {
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(server); }}
             className="p-1.5 rounded-md hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-500"
-            aria-label="Delete Server"
+            aria-label={t("Delete Server")}
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -98,7 +103,7 @@ function ServerCardActions({ server, onEdit, onDelete }) {
             <button
               onClick={(e) => e.stopPropagation()}
               className="p-1.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400"
-              aria-label="More options"
+              aria-label={t("More options")}
             >
               <MoreVertical className="h-4 w-4" />
             </button>
@@ -106,7 +111,7 @@ function ServerCardActions({ server, onEdit, onDelete }) {
           <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="end">
             <DropdownMenuItem onClick={() => onEdit(server.id)}>
               <Pencil className="mr-2 h-4 w-4" />
-              <span>Edit</span>
+              <span>{t("Edit")}</span>
             </DropdownMenuItem>
             {showDelete && (
               <DropdownMenuItem
@@ -114,7 +119,7 @@ function ServerCardActions({ server, onEdit, onDelete }) {
                 className="text-red-600 focus:text-red-600 dark:text-red-500 dark:focus:text-red-500"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                <span>Delete</span>
+                <span>{t("Delete")}</span>
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>
@@ -125,26 +130,27 @@ function ServerCardActions({ server, onEdit, onDelete }) {
 }
 
 function ServerCardMetrics({ memory, uptime, portCount, typeIcon, typeCount, typeLabel }) {
+  const { t } = useTranslation();
   return (
     <>
       <div className="mt-3 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
         <div className="flex items-center space-x-3">
           <HardDrive className="h-3 w-3 mr-1" />
-          <span>{memory ? formatBytes(memory) : "N/A"}</span>
+          <span>{memory ? formatBytes(memory) : t("N/A")}</span>
         </div>
         <div className="flex items-center space-x-3">
           <Clock className="h-3 w-3 mr-1" />
-          <span>{uptime ? formatUptime(uptime, true) : "N/A"}</span>
+          <span>{uptime ? formatUptime(uptime, true) : t("N/A")}</span>
         </div>
       </div>
       <div className="mt-2 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors">
         <div className="flex items-center space-x-3">
           <Zap className="h-3 w-3 mr-1" />
-          <span>{portCount} ports</span>
+          <span>{portCount === 1 ? t("{{count}} port", { count: portCount }) : t("{{count}} ports", { count: portCount })}</span>
         </div>
         <div className="flex items-center space-x-3">
           {typeIcon}
-          <span>{typeCount} {typeLabel}</span>
+          <span>{t("{{count}} {{type}}", { count: typeCount, type: t(typeLabel) })}</span>
         </div>
       </div>
     </>
@@ -171,9 +177,9 @@ function getServerTypeMeta(server, portCount, containerCount, vmCount) {
     };
   }
   if (vmCount > 0) {
-    return { label: "VMs", icon: <Server className="h-3 w-3 mr-1" />, count: vmCount };
+    return { label: vmCount === 1 ? "VM" : "VMs", icon: <Server className="h-3 w-3 mr-1" />, count: vmCount };
   }
-  return { label: "Services", icon: <Settings className="h-3 w-3 mr-1" />, count: portCount };
+  return { label: portCount === 1 ? "Service" : "Services", icon: <Settings className="h-3 w-3 mr-1" />, count: portCount };
 }
 
 export const ServerCard = React.memo(function ServerCard({
@@ -186,7 +192,8 @@ export const ServerCard = React.memo(function ServerCard({
   lastRefreshedTs,
   children,
 }) {
-  const name = server.server || "Unknown Server";
+  const { t } = useTranslation();
+  const name = server.server || t("Unknown Server");
   const portCount = server.data?.length || 0;
   const isUpdating = server.ok === null || server.loading;
   const systemInfo = server.systemInfo || {};

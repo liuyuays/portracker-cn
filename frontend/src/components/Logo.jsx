@@ -1,6 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import React from "react";
 
-const Logo = ({ className }) => (
+const Logo = ({ className }) => {
+  const { t } = useTranslation();
+  return (
   <svg
     width="30"
     height="30"
@@ -8,7 +11,7 @@ const Logo = ({ className }) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
-    aria-label="Ports Tracker Logo"
+    aria-label={t("Ports Tracker Logo")}
   >
     <path
       d="M15.3225 24.9499C17.5242 24.8682 19.6374 24.0618 21.3337 22.6557C23.03 21.2496 24.2144 19.3227 24.703 17.1743"
@@ -124,5 +127,6 @@ const Logo = ({ className }) => (
     />
   </svg>
 );
+};
 
 export default Logo;

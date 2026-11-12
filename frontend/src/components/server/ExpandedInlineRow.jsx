@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React from "react";
 import { ExternalLink, Lock, Tag } from "lucide-react";
 import {
@@ -34,8 +35,9 @@ export function InlinePortRow({
   autoxposeUrlStyle = "compact",
   isLastInGroup = false,
 }) {
+  const { t } = useTranslation();
   const hostForUi = getDisplayHost(port, serverId, serverUrl, hostOverride);
-  const containerName = port.compose_service || port.owner || "Unknown";
+  const containerName = port.compose_service || port.owner || t("Unknown");
   const itemKey = generatePortKey(serverId, port);
 
   return (
@@ -75,7 +77,7 @@ export function InlinePortRow({
               actionFeedback={actionFeedback}
               onClick={() => onRename?.(serverId, port)}
               icon={Tag}
-              title="Rename service"
+              title={t("Rename service")}
               size="sm"
             />
           </div>
@@ -134,7 +136,7 @@ export function InlinePortRow({
             ? "bg-blue-100 text-blue-700 dark:bg-blue-800/30 dark:text-blue-300"
             : "bg-green-100 text-green-700 dark:bg-green-800/30 dark:text-green-300"
         }`}>
-          {port.source}
+          {port.source === "docker" || port.source === "system" ? t(port.source) : port.source}
         </span>
       </td>
 
@@ -151,7 +153,7 @@ export function InlinePortRow({
             </Tooltip>
           </TooltipProvider>
         ) : (
-          "N/A"
+          t("N/A")
         )}
       </td>
 

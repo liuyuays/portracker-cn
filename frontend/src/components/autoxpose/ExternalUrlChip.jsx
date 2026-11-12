@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React from "react";
 import { ExternalLink, Globe } from "lucide-react";
 import {
@@ -17,6 +18,7 @@ const bgClassesByStatus = {
 };
 
 export function ExternalUrlChip({ url, hostname, sslStatus = "active", compact = false }) {
+  const { t } = useTranslation();
   const href = safeExternalUrl(url);
   if (!href) return null;
   const bgClasses = bgClassesByStatus[sslStatus] || bgClassesByStatus.none;
@@ -42,7 +44,7 @@ export function ExternalUrlChip({ url, hostname, sslStatus = "active", compact =
           <TooltipContent>
             <div className="flex flex-col gap-1">
               <span className="font-medium">{hostname}</span>
-              <span className="text-xs opacity-80">{getSslTooltip(sslStatus)}</span>
+              <span className="text-xs opacity-80">{t(getSslTooltip(sslStatus))}</span>
             </div>
           </TooltipContent>
         </Tooltip>

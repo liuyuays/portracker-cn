@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import React from 'react';
 import { Check, Copy } from 'lucide-react';
 
 export function InfoTile({ label, value, displayValue, mono, onCopy, tooltip, isCopied }) {
+  const { t } = useTranslation();
   if (value == null) return null;
   const showValue = displayValue != null ? displayValue : value;
   return (
@@ -14,7 +16,7 @@ export function InfoTile({ label, value, displayValue, mono, onCopy, tooltip, is
         <button
           type="button"
           onClick={() => onCopy(value)}
-          aria-label={isCopied ? `${label} copied` : `Copy ${label}`}
+          aria-label={isCopied ? t("{{label}} copied", { label }) : t("Copy {{label}}", { label })}
           className={`absolute top-2 right-2 transition-all p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 ${isCopied ? 'bg-green-100 dark:bg-green-900/30' : 'opacity-0 group-hover:opacity-100'}`}
         >
           {isCopied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}

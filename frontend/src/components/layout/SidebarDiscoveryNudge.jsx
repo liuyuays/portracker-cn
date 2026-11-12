@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 import { Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ export function SidebarDiscoveryNudge({
   onTry,
   onDismiss,
 }) {
+  const { t } = useTranslation();
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
   if (!isVisible) {
@@ -30,17 +32,17 @@ export function SidebarDiscoveryNudge({
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                  Heads up — sidebar has knobs.
+                  {t("Heads up — sidebar has knobs.")}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                  Drag the edge to resize. <kbd className="rounded border border-slate-200 bg-slate-50 px-1 font-mono text-[11px] text-slate-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300">{shortcutLabel}</kbd> folds it away. <kbd className="rounded border border-slate-200 bg-slate-50 px-1 font-mono text-[11px] text-slate-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300">{searchShortcutLabel}</kbd> jumps into search.
+                  {t("Drag the edge to resize.")} <kbd className="rounded border border-slate-200 bg-slate-50 px-1 font-mono text-[11px] text-slate-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300">{shortcutLabel}</kbd> {t("folds it away.")} <kbd className="rounded border border-slate-200 bg-slate-50 px-1 font-mono text-[11px] text-slate-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300">{searchShortcutLabel}</kbd> {t("jumps into search.")}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => onDismiss(dontShowAgain)}
                 className="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-200"
-                aria-label="Close sidebar tip"
+                aria-label={t("Close sidebar tip")}
               >
                 <X className="h-4 w-4" />
               </button>
@@ -53,12 +55,12 @@ export function SidebarDiscoveryNudge({
                 onChange={(event) => setDontShowAgain(event.target.checked)}
                 className="h-3.5 w-3.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600"
               />
-              Stop reminding me
+              {t("Stop reminding me")}
             </label>
 
             <div className="mt-4 flex items-center gap-2">
               <Button size="sm" onClick={onTry} className="h-8 px-3">
-                Got it
+                {t("Got it")}
               </Button>
               <Button
                 size="sm"
@@ -66,7 +68,7 @@ export function SidebarDiscoveryNudge({
                 onClick={() => onDismiss(dontShowAgain)}
                 className="h-8 px-2 text-slate-500 dark:text-slate-400"
               >
-                Not now
+                {t("Not now")}
               </Button>
             </div>
           </div>

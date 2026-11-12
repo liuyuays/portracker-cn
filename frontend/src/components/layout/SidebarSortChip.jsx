@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React from "react";
 import { ArrowDownAZ, ArrowDownZA, ListOrdered, Undo2 } from "lucide-react";
 
@@ -10,6 +11,7 @@ const MODE_ICON = {
 };
 
 export function SidebarSortChip({ sortMode, onChange, undoState, onUndo }) {
+  const { t } = useTranslation();
   const Icon = MODE_ICON[sortMode] || ListOrdered;
   const cycle = () => onChange(NEXT_MODE[sortMode] || "custom");
   return (
@@ -18,10 +20,10 @@ export function SidebarSortChip({ sortMode, onChange, undoState, onUndo }) {
         type="button"
         onClick={cycle}
         className="w-full inline-flex items-center justify-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-        aria-label={`Sidebar order: ${MODE_LABEL[sortMode]}. Click to change.`}
+        aria-label={t("Sidebar order: {{order}}. Click to change.", { order: t(MODE_LABEL[sortMode]) })}
       >
         <Icon className="h-3.5 w-3.5" />
-        <span>Order: {MODE_LABEL[sortMode]}</span>
+        <span>{t("Order: {{order}}", { order: t(MODE_LABEL[sortMode]) })}</span>
       </button>
       {undoState.visible && (
         <div
@@ -31,7 +33,7 @@ export function SidebarSortChip({ sortMode, onChange, undoState, onUndo }) {
           }`}
         >
           <span className="truncate">
-            Switched to {MODE_LABEL[sortMode]}.
+            {t("Switched to {{order}}.", { order: t(MODE_LABEL[sortMode]) })}
           </span>
           <button
             type="button"
@@ -39,7 +41,7 @@ export function SidebarSortChip({ sortMode, onChange, undoState, onUndo }) {
             className="inline-flex items-center gap-1 rounded px-1 py-0.5 font-medium text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-50 hover:underline"
           >
             <Undo2 className="h-3 w-3" />
-            Back to {MODE_LABEL[undoState.previousMode] || "Custom"}
+            {t("Back to {{order}}", { order: t(MODE_LABEL[undoState.previousMode] || "Custom") })}
           </button>
         </div>
       )}

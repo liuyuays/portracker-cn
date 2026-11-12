@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { Server, Zap, HardDrive, Box } from "lucide-react";
 import { formatBytes } from "@/lib/utils";
 import { TrueNASApiKeyEmptyState } from "./TrueNASApiKeyEmptyState";
 
 function VMItem({ vm }) {
+  const { t } = useTranslation();
   const status = typeof vm.status === 'string' ? vm.status : (vm.status?.state || 'unknown');
   const isRunning = status.toLowerCase() === "running";
   const statusColor = isRunning ? "bg-green-500" : "bg-red-500";
@@ -32,7 +34,7 @@ function VMItem({ vm }) {
               )}
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">
-              {status}
+              {t(status)}
             </p>
           </div>
         </div>
@@ -41,7 +43,7 @@ function VMItem({ vm }) {
         {vm.vcpus && (
           <span className="inline-flex items-center px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full text-xs font-medium">
             <Zap className="h-3 w-3 mr-1" />
-            {vm.vcpus} vCPU{vm.vcpus > 1 ? "s" : ""}
+            {vm.vcpus > 1 ? t("{{count}} vCPUs", { count: vm.vcpus }) : t("{{count}} vCPU", { count: vm.vcpus })}
           </span>
         )}
         {vm.memory && (
@@ -56,6 +58,7 @@ function VMItem({ vm }) {
 }
 
 export function VMsCard({ vms, enhancedFeaturesEnabled }) {
+  const { t } = useTranslation();
   if (enhancedFeaturesEnabled === false) {
     return <TrueNASApiKeyEmptyState />;
   }
@@ -63,7 +66,7 @@ export function VMsCard({ vms, enhancedFeaturesEnabled }) {
   if (!vms || vms.length === 0) {
     return (
       <div className="p-6 text-center text-slate-500 dark:text-slate-400">
-        No VMs detected. This server is living a simple, uncomplicated life.
+        {t("No VMs detected. This server is living a simple, uncomplicated life.")}
       </div>
     );
   }

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SetupWizard } from './SetupWizard';
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const { authEnabled, setupRequired, login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -43,8 +46,11 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex flex-col items-center bg-slate-50 dark:bg-slate-950 p-4">
+      <div className="w-full flex justify-end mb-4">
+        <LanguageSwitcher />
+      </div>
+      <div className="w-full max-w-md my-auto">
         <div className="bg-white dark:bg-slate-900 rounded-lg shadow-lg border border-slate-200 dark:border-slate-800 p-8">
           <div className="flex flex-col items-center mb-8">
             <div className="mb-4 group">
@@ -54,19 +60,19 @@ export function LoginPage() {
               portracker
             </h1>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-              Sign in to continue
+              {t('Sign in to continue')}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-slate-700 dark:text-slate-300">Username</Label>
+              <Label htmlFor="username" className="text-slate-700 dark:text-slate-300">{t('Username')}</Label>
               <Input
                 id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                placeholder={t('Enter your username')}
                 required
                 autoComplete="username"
                 disabled={loading}
@@ -75,14 +81,14 @@ export function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-700 dark:text-slate-300">Password</Label>
+              <Label htmlFor="password" className="text-slate-700 dark:text-slate-300">{t('Password')}</Label>
               <Input
                 ref={passwordInputRef}
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder={t('Enter your password')}
                 required
                 autoComplete="current-password"
                 disabled={loading}
@@ -93,7 +99,7 @@ export function LoginPage() {
             {error && (
               <div className="p-3 rounded-md bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900">
                 <p className="text-sm text-red-800 dark:text-red-200">
-                  {error}
+                  {t(error)}
                 </p>
               </div>
             )}
@@ -103,7 +109,7 @@ export function LoginPage() {
               disabled={loading || !username || !password}
               className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? t('Signing in...') : t('Sign In')}
             </Button>
           </form>
 

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useEffect, useState } from "react";
 import {
   Tooltip,
@@ -37,6 +38,7 @@ export function ServiceCardGrid({
   autoxposeUrlStyle = "compact",
   autoxposePorts,
 }) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const hasDeepLink = !!deepLinkContainerId && ports.some(port => port.container_id === deepLinkContainerId);
   useEffect(() => {
@@ -117,10 +119,10 @@ export function ServiceCardGrid({
                       : "bg-green-100 text-green-700 dark:bg-green-800/30 dark:text-green-300"
                   }`}
                 >
-                  {isDocker ? "docker" : "system"}
+                  {t(isDocker ? "docker" : "system")}
                 </span>
                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                  {ports.length} port{ports.length !== 1 ? "s" : ""}
+                  {ports.length === 1 ? t("{{count}} port", { count: ports.length }) : t("{{count}} ports", { count: ports.length })}
                 </span>
               </div>
             </div>
@@ -177,7 +179,7 @@ export function ServiceCardGrid({
           )}
           {internalPorts.length > 0 && (
             <span className="text-slate-400 dark:text-slate-500 text-xs">
-              +{internalPorts.length} internal
+              {t("+{{count}} internal", { count: internalPorts.length })}
             </span>
           )}
         </div>
@@ -218,11 +220,11 @@ export function ServiceCardGrid({
                           : "bg-green-100 text-green-700 dark:bg-green-800/30 dark:text-green-300"
                       }`}
                     >
-                      {isDocker ? "docker" : "system"}
+                      {t(isDocker ? "docker" : "system")}
                     </span>
                     <span className="text-xs text-slate-500 dark:text-slate-400">
-                      {publishedPorts.length} published
-                      {internalPorts.length > 0 && `, ${internalPorts.length} internal`}
+                      {t("{{count}} published", { count: publishedPorts.length })}
+                      {internalPorts.length > 0 && t(", {{count}} internal", { count: internalPorts.length })}
                     </span>
                   </div>
                 </div>
@@ -242,7 +244,7 @@ export function ServiceCardGrid({
                 const containerGroups = new Map();
                 ports.forEach((port) => {
                   const containerKey = port.container_id || port.owner || 'unknown';
-                  const containerName = port.compose_service || port.owner || 'Unknown';
+                  const containerName = port.compose_service || port.owner || t("Unknown");
                   if (!containerGroups.has(containerKey)) {
                     containerGroups.set(containerKey, {
                       name: containerName,
@@ -262,7 +264,7 @@ export function ServiceCardGrid({
                           {container.name}
                         </span>
                         <span className="text-xs text-slate-400 dark:text-slate-500">
-                          ({container.ports.length} port{container.ports.length !== 1 ? 's' : ''})
+                          ({container.ports.length === 1 ? t("{{count}} port", { count: container.ports.length }) : t("{{count}} ports", { count: container.ports.length })})
                         </span>
                       </div>
                     )}

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -65,6 +66,7 @@ export function SettingsModal({
   onAutoxposeDisplayModeChange,
   onAutoxposeUrlStyleChange,
 }) {
+  const { t } = useTranslation();
   const [localTheme, setLocalTheme] = useState(theme);
   const [localShowIcons, setLocalShowIcons] = useState(showIcons);
   const [localRefreshInterval, setLocalRefreshInterval] = useState(refreshInterval || 30000);
@@ -151,22 +153,22 @@ export function SettingsModal({
   };
 
   const themeOptions = [
-    { value: "system", icon: Monitor },
-    { value: "light", icon: Sun },
-    { value: "dark", icon: Moon },
+    { value: "system", label: "System", icon: Monitor },
+    { value: "light", label: "Light", icon: Sun },
+    { value: "dark", label: "Dark", icon: Moon },
   ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Settings</DialogTitle>
+          <DialogTitle>{t("Settings")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5 py-2">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Theme</span>
+              <span className="text-sm font-medium">{t("Theme")}</span>
               <div className="flex gap-1">
                 {themeOptions.map((option) => {
                   const Icon = option.icon;
@@ -186,7 +188,7 @@ export function SettingsModal({
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent side="bottom" className="capitalize">
-                          {option.value}
+                          {t(option.label)}
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -202,7 +204,7 @@ export function SettingsModal({
                 ) : (
                   <EyeOff className="h-4 w-4 text-slate-400" />
                 )}
-                <span className="text-sm">Service Icons</span>
+                <span className="text-sm">{t("Service Icons")}</span>
               </div>
               <Switch
                 checked={localShowIcons}
@@ -211,7 +213,7 @@ export function SettingsModal({
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-sm">Auto-Refresh</span>
+              <span className="text-sm">{t("Auto-Refresh")}</span>
               <div className="flex gap-1">
                 {REFRESH_INTERVALS.map((option) => {
                   const isSelected = localRefreshInterval === option.value;
@@ -223,7 +225,7 @@ export function SettingsModal({
                       className="h-7 px-2 text-xs"
                       onClick={() => handleRefreshIntervalChange(option.value)}
                     >
-                      {option.label}
+                      {t(option.label)}
                     </Button>
                   );
                 })}
@@ -250,7 +252,7 @@ export function SettingsModal({
                 {autoxposeStatus?.connected && (
                   <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
                     <CheckCircle className="h-3 w-3" />
-                    connected
+                    {t("connected")}
                   </span>
                 )}
               </div>
@@ -276,7 +278,7 @@ export function SettingsModal({
                       {autoxposeError && (
                         <p className="text-xs text-red-500 flex items-center gap-1">
                           <XCircle className="h-3 w-3" />
-                          {autoxposeError}
+                          {t(autoxposeError)}
                         </p>
                       )}
                     </div>
@@ -289,10 +291,10 @@ export function SettingsModal({
                       {autoxposeConnecting ? (
                         <>
                           <Loader2 className="h-3 w-3 mr-2 animate-spin" />
-                          Connecting...
+                          {t("Connecting...")}
                         </>
                       ) : (
-                        "Connect"
+                        t("Connect")
                       )}
                     </Button>
                   </>
@@ -301,7 +303,7 @@ export function SettingsModal({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <AutoxposeLogo size={14} className="text-slate-400" />
-                        <span className="text-sm">Display</span>
+                        <span className="text-sm">{t("Display")}</span>
                       </div>
                       <div className="flex gap-1">
                         <Tooltip>
@@ -315,7 +317,7 @@ export function SettingsModal({
                               <Link2 className="h-4 w-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent side="bottom">Show URL</TooltipContent>
+                          <TooltipContent side="bottom">{t("Show URL")}</TooltipContent>
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -328,13 +330,13 @@ export function SettingsModal({
                               <Tag className="h-4 w-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent side="bottom">Show Badge</TooltipContent>
+                          <TooltipContent side="bottom">{t("Show Badge")}</TooltipContent>
                         </Tooltip>
                       </div>
                     </div>
                     {autoxposeDisplayMode === "url" && (
                       <div className="flex items-center justify-between pl-6">
-                        <span className="text-sm text-slate-500">Style</span>
+                        <span className="text-sm text-slate-500">{t("Style")}</span>
                         <div className="flex gap-1">
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -344,10 +346,10 @@ export function SettingsModal({
                                 className="h-7 px-2 text-xs"
                                 onClick={() => onAutoxposeUrlStyleChange?.("compact")}
                               >
-                                Compact
+                                {t("Compact")}
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent side="bottom">Show subdomain only</TooltipContent>
+                            <TooltipContent side="bottom">{t("Show subdomain only")}</TooltipContent>
                           </Tooltip>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -357,10 +359,10 @@ export function SettingsModal({
                                 className="h-7 px-2 text-xs"
                                 onClick={() => onAutoxposeUrlStyleChange?.("full")}
                               >
-                                Full
+                                {t("Full")}
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent side="bottom">Show full hostname</TooltipContent>
+                            <TooltipContent side="bottom">{t("Show full hostname")}</TooltipContent>
                           </Tooltip>
                         </div>
                       </div>
@@ -372,7 +374,7 @@ export function SettingsModal({
                         className="w-full text-slate-500"
                         onClick={handleAutoxposeDisconnect}
                       >
-                        Disconnect
+                        {t("Disconnect")}
                       </Button>
                     </div>
                   </>
@@ -386,7 +388,7 @@ export function SettingsModal({
               onClick={() => setShowAdvanced(!showAdvanced)}
               className="flex items-center justify-between w-full text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
             >
-              <span>Advanced Options</span>
+              <span>{t("Advanced Options")}</span>
               {showAdvanced ? (
                 <ChevronUp className="h-4 w-4" />
               ) : (
@@ -398,13 +400,13 @@ export function SettingsModal({
               <div className="mt-3 space-y-3 pl-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">Include UDP</span>
+                    <span className="text-sm">{t("Include UDP")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-slate-400 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-[200px]">
-                        Show UDP ports like DNS, DHCP, NTP
+                        {t("Show UDP ports like DNS, DHCP, NTP")}
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -416,13 +418,13 @@ export function SettingsModal({
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">Disable Cache</span>
+                    <span className="text-sm">{t("Disable Cache")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-slate-400 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-[200px]">
-                        Force fresh data (slower)
+                        {t("Force fresh data (slower)")}
                       </TooltipContent>
                     </Tooltip>
                   </div>
@@ -434,17 +436,17 @@ export function SettingsModal({
 
                 <div className="flex items-center justify-between gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-sm">Service role overrides</span>
+                    <span className="text-sm">{t("Service role overrides")}</span>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3.5 w-3.5 text-slate-400 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="top" className="max-w-[240px]">
-                        Roles you've manually changed for individual containers (Main / Helper / Finished job). Reset to let portracker auto-detect them again.
+                        {t("Roles you've manually changed for individual containers (Main / Helper / Finished job). Reset to let portracker auto-detect them again.")}
                       </TooltipContent>
                     </Tooltip>
                     <span className="text-xs text-slate-500 dark:text-slate-400">
-                      {overrideCount === 0 ? "none set" : overrideCount + " set"}
+                      {overrideCount === 0 ? t("none set") : t("{{count}} set", { count: overrideCount })}
                     </span>
                   </div>
                   {confirmClearOverrides ? (
@@ -455,7 +457,7 @@ export function SettingsModal({
                         onClick={() => setConfirmClearOverrides(false)}
                         disabled={clearingOverrides}
                       >
-                        Cancel
+                        {t("Cancel")}
                       </Button>
                       <Button
                         variant="destructive"
@@ -471,7 +473,7 @@ export function SettingsModal({
                           }
                         }}
                       >
-                        {clearingOverrides ? "Clearing..." : "Confirm clear"}
+                        {clearingOverrides ? t("Clearing...") : t("Confirm clear")}
                       </Button>
                     </div>
                   ) : (
@@ -481,7 +483,7 @@ export function SettingsModal({
                       disabled={overrideCount === 0}
                       onClick={() => setConfirmClearOverrides(true)}
                     >
-                      Clear all
+                      {t("Clear all")}
                     </Button>
                   )}
                 </div>
@@ -504,7 +506,7 @@ export function SettingsModal({
                   <FileText className="h-4 w-4" />
                 </a>
               </TooltipTrigger>
-              <TooltipContent side="top">Changelog</TooltipContent>
+              <TooltipContent side="top">{t("Changelog")}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -517,11 +519,11 @@ export function SettingsModal({
                   <Github className="h-4 w-4" />
                 </a>
               </TooltipTrigger>
-              <TooltipContent side="top">GitHub</TooltipContent>
+              <TooltipContent side="top">{t("GitHub")}</TooltipContent>
             </Tooltip>
           </div>
           <Button variant="outline" size="sm" onClick={onClose}>
-            Done
+            {t("Done")}
           </Button>
         </DialogFooter>
       </DialogContent>

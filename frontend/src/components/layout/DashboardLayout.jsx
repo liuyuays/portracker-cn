@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PanelLeftClose, PanelLeft, GripVertical } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -26,6 +27,7 @@ export function DashboardLayout({
   onTrySidebarDiscovery,
   onSidebarMaxedOut,
 }) {
+  const { t } = useTranslation();
   const [isResizing, setIsResizing] = useState(false);
   const maxHitCountRef = useRef(0);
   const latestWidthRef = useRef(sidebarWidth);
@@ -133,7 +135,7 @@ export function DashboardLayout({
                 <div
                   role="button"
                   tabIndex={0}
-                  aria-label="Resize sidebar"
+                  aria-label={t("Resize sidebar")}
                   onMouseDown={() => setIsResizing(true)}
                   onDoubleClick={handleResetWidth}
                   className="group absolute inset-y-0 left-[9px] flex w-[6px] cursor-col-resize items-center justify-center"
@@ -154,7 +156,7 @@ export function DashboardLayout({
                   </div>
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right">Drag to resize • double-click to reset</TooltipContent>
+              <TooltipContent side="right">{t("Drag to resize • double-click to reset")}</TooltipContent>
             </Tooltip>
           )}
           <Tooltip>
@@ -162,7 +164,7 @@ export function DashboardLayout({
               <button
                 onClick={onToggleSidebarCollapsed}
                 className="hidden md:flex absolute -right-2 top-6 z-50 h-7 w-7 items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 shadow-sm transition-colors"
-                aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                aria-label={isSidebarCollapsed ? t("Expand sidebar") : t("Collapse sidebar")}
               >
                 {isSidebarCollapsed ? (
                   <PanelLeft className="h-3.5 w-3.5" />
@@ -173,8 +175,8 @@ export function DashboardLayout({
             </TooltipTrigger>
             <TooltipContent side="right">
               {isSidebarCollapsed
-                ? `Expand sidebar • ${sidebarShortcutLabel}`
-                : `Collapse sidebar • ${sidebarShortcutLabel}`}
+                ? t("Expand sidebar • {{shortcut}}", { shortcut: sidebarShortcutLabel })
+                : t("Collapse sidebar • {{shortcut}}", { shortcut: sidebarShortcutLabel })}
             </TooltipContent>
           </Tooltip>
         </div>

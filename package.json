@@ -12,7 +12,12 @@
     "test:context": "node scripts/check-build-context.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "lint:strict": "eslint --config .eslint.local.cjs ."
+    "lint:strict": "eslint --config .eslint.local.cjs .",
+    "i18n:check": "node scripts/check-i18n.mjs",
+    "i18n:inventory": "node scripts/check-i18n.mjs --inventory",
+    "test:i18n": "node --test frontend/src/i18n/core.test.mjs frontend/src/i18n/formatting.test.mjs frontend/src/components/server/health-localization.test.mjs scripts/check-i18n.test.mjs",
+    "package:docker": "node scripts/package-docker.mjs",
+    "test:package:docker": "node --test scripts/package-docker.test.mjs"
   },
   "repository": {
     "type": "git",

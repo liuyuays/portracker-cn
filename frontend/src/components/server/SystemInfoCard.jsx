@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Cpu,
   MemoryStick,
@@ -31,6 +32,7 @@ function InfoItem({ icon, label, value, fullWidth = false }) {
 }
 
 export function SystemInfoCard({ systemInfo, platformName }) {
+  const { t } = useTranslation();
   if (!systemInfo) return null;
 
   const info = {
@@ -63,10 +65,10 @@ export function SystemInfoCard({ systemInfo, platformName }) {
     const total = info.containersTotal;
 
     if (running !== undefined && total !== undefined) {
-      return `${running} running / ${total} total`;
+      return t("{{running}} running / {{total}} total", { running, total });
     }
     if (running !== undefined) {
-      return `${running} running`;
+      return t("{{running}} running", { running });
     }
     return undefined;
   };
@@ -78,25 +80,25 @@ export function SystemInfoCard({ systemInfo, platformName }) {
         <div className="space-y-2 border-b border-slate-200 dark:border-slate-700/50 pb-3">
           <InfoItem
             icon={Home}
-            label="Hostname"
+            label={t("Hostname")}
             value={info.hostname}
             fullWidth={true}
           />
           <InfoItem
             icon={ServerIcon}
-            label="Product"
+            label={t("Product")}
             value={info.product}
             fullWidth={true}
           />
           <InfoItem
             icon={Terminal}
-            label="OS"
+            label={t("OS")}
             value={info.os}
             fullWidth={true}
           />
           <InfoItem
             icon={Cpu}
-            label="CPU Model"
+            label={t("CPU Model")}
             value={info.cpuModel}
             fullWidth={true}
           />
@@ -104,25 +106,25 @@ export function SystemInfoCard({ systemInfo, platformName }) {
 
         
         <div className="grid grid-cols-1 @[26rem]:grid-cols-2 gap-x-6 gap-y-2 pt-1">
-          <InfoItem icon={Cpu} label="CPU Cores" value={info.cpuCores} />
+          <InfoItem icon={Cpu} label={t("CPU Cores")} value={info.cpuCores} />
           <InfoItem
             icon={MemoryStick}
-            label="Memory"
-            value={info.memory ? `Total: ${formatBytes(info.memory)}` : "N/A"}
+            label={t("Memory")}
+            value={info.memory ? t("Total: {{memory}}", { memory: formatBytes(info.memory) }) : t("N/A")}
           />
           {memoryMessage && (
             <div className="col-span-full text-xs text-slate-500 dark:text-slate-400 italic">
-              {memoryMessage}
+              {t(memoryMessage)}
             </div>
           )}
           <InfoItem
             icon={Clock}
-            label="Uptime"
-            value={info.uptime ? formatUptime(info.uptime) : "N/A"}
+            label={t("Uptime")}
+            value={info.uptime ? formatUptime(info.uptime) : t("N/A")}
           />
           <InfoItem
             icon={Container}
-            label="Containers"
+            label={t("Containers")}
             value={containerInfoValue()}
           />
           <InfoItem icon={Package} label="Docker" value={info.dockerVersion} />

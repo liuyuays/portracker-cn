@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import {
@@ -38,6 +39,7 @@ export function ServiceCardList({
   autoxposeUrlStyle = "compact",
   autoxposePorts,
 }) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const hasDeepLink = !!deepLinkContainerId && ports.some(port => port.container_id === deepLinkContainerId);
   useEffect(() => {
@@ -116,10 +118,10 @@ export function ServiceCardList({
               <span
                 className={`inline-block px-1.5 py-0.5 rounded ${isDocker ? "bg-blue-100 text-blue-700 dark:bg-blue-800/30 dark:text-blue-300" : "bg-green-100 text-green-700 dark:bg-green-800/30 dark:text-green-300"}`}
               >
-                {isDocker ? "docker" : "system"}
+                {t(isDocker ? "docker" : "system")}
               </span>
               <span>
-                {ports.length} port{ports.length !== 1 ? "s" : ""}
+                {ports.length === 1 ? t("{{count}} port", { count: ports.length }) : t("{{count}} ports", { count: ports.length })}
               </span>
               {oldestCreated && (
                 <TooltipProvider>
@@ -200,7 +202,7 @@ export function ServiceCardList({
                       {container.name}
                     </span>
                     <span className="text-xs text-slate-400 dark:text-slate-500">
-                      ({container.ports.length} port{container.ports.length !== 1 ? 's' : ''})
+                      ({container.ports.length === 1 ? t("{{count}} port", { count: container.ports.length }) : t("{{count}} ports", { count: container.ports.length })})
                     </span>
                   </div>
                 )}

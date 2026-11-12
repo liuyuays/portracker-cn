@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React from "react";
 import { Plus, BarChart3 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +23,7 @@ export function CollapsedSidebar({
   onSelect,
   onAdd,
 }) {
+  const { t } = useTranslation();
   return (
     <TooltipProvider delayDuration={200}>
       <div className="flex h-full flex-col overflow-hidden bg-white dark:bg-slate-900">
@@ -32,12 +34,12 @@ export function CollapsedSidebar({
                 type="button"
                 className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
                 onClick={() => onSelect(selectedId || servers[0]?.id)}
-                aria-label="Open dashboard"
+                aria-label={t("Open dashboard")}
               >
                 <BarChart3 className="h-5 w-5" />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right">All servers</TooltipContent>
+            <TooltipContent side="right">{t("All servers")}</TooltipContent>
           </Tooltip>
 
           <div className="mx-auto mt-4 h-px w-10 bg-slate-200 dark:bg-slate-700" />
@@ -46,7 +48,7 @@ export function CollapsedSidebar({
         <div className="flex-1 overflow-y-auto px-3 pb-3 pt-1">
           <div className="space-y-3">
           {servers.map((server) => {
-            const name = server.label || server.server || "Server";
+            const name = server.label || server.server || t("Server");
             const initials = name.slice(0, 2).toUpperCase();
             const isSelected = selectedId === server.id;
             return (
@@ -67,7 +69,7 @@ export function CollapsedSidebar({
                 <TooltipContent side="right">
                   <div>
                     <div className="font-medium">{name}</div>
-                    <div className="text-xs text-slate-400">{server.data?.length || 0} ports</div>
+                    <div className="text-xs text-slate-400">{server.data?.length === 1 ? t("{{count}} port", { count: server.data.length }) : t("{{count}} ports", { count: server.data?.length || 0 })}</div>
                   </div>
                 </TooltipContent>
               </Tooltip>
@@ -84,12 +86,12 @@ export function CollapsedSidebar({
               <button
                 onClick={() => onAdd()}
                 className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 text-slate-400 transition-colors hover:border-slate-400 hover:text-slate-500 dark:border-slate-700 dark:text-slate-500 dark:hover:border-slate-600 dark:hover:text-slate-400"
-                aria-label="Add server"
+                aria-label={t("Add server")}
               >
                 <Plus className="h-4 w-4" />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right">Add server</TooltipContent>
+            <TooltipContent side="right">{t("Add server")}</TooltipContent>
           </Tooltip>
         </div>
       </div>

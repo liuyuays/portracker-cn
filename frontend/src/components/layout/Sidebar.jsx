@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState, useEffect, useRef } from "react";
 import {
   Plus,
@@ -58,6 +59,7 @@ export function Sidebar({
   requestedMode,
   onRequestedModeHandled,
 }) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState("list");
   const [form, setForm] = useState({
     label: "",
@@ -177,14 +179,18 @@ export function Sidebar({
           } else {
             setUrlValid(false);
             let message;
+            let values;
             if (!response.ok) {
-              message = result.error || `Check failed with ${response.status}`;
+              message = result.error || "Check failed with {{status}}";
+              values = { status: response.status };
             } else if (result.status) {
-              message = `Server responded with ${result.status}`;
+              message = "Server responded with {{status}}";
+              values = { status: result.status };
             } else {
-              message = `Cannot reach server: ${result.error || "unknown error"}`;
+              message = result.error ? "Cannot reach server: {{error}}" : "Cannot reach server: unknown error";
+              values = { error: result.error };
             }
-            setValidationStatus({ type: "error", message });
+            setValidationStatus({ type: "error", message, values });
           }
           setValidating(false);
         }
@@ -200,7 +206,8 @@ export function Sidebar({
           } else {
             setValidationStatus({
               type: "error",
-              message: `Cannot reach server: ${e.message}`,
+              message: "Cannot reach server: {{error}}",
+              values: { error: e.message },
             });
           }
         }
@@ -282,8 +289,9 @@ export function Sidebar({
   const availableParents = servers.filter((s) => s.id !== mode);
 
   const ValidationStatus = () => {
+    const { t } = useTranslation();
     if (!validationStatus && !validating) return null;
-    const { type, message } = validationStatus || {};
+    const { type, message, values } = validationStatus || {};
     const statusConfig = {
       loading: {
         icon: Loader2,
@@ -314,7 +322,7 @@ export function Sidebar({
         >
           <Icon className={`h-4 w-4 ${className}`} />
           <span className="text-sm text-blue-700 dark:text-blue-300">
-            Checking server availability...
+            {t("Checking server availability...")}
           </span>
         </div>
       );
@@ -335,7 +343,7 @@ export function Sidebar({
                 : "text-amber-700 dark:text-amber-300"
             }`}
           >
-            {message}
+            {t(message, values)}
           </span>
         </div>
       );
@@ -396,14 +404,14 @@ export function Sidebar({
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1 flex items-center">
                 <BarChart3 className="h-5 w-5 mr-2 text-slate-600 dark:text-slate-400" />
-                Dashboard
+                {t("Dashboard")}
               </h2>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Server Overview
+                {t("Server Overview")}
               </p>
             </div>
             <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">
-              Servers ({servers.length})
+              {t("Servers ({{count}})", { count: servers.length })}
             </h3>
           </div>
           <div className="flex-1 overflow-y-auto px-6 space-y-4 pb-4">
@@ -433,23 +441,23 @@ export function Sidebar({
               className="w-full p-4 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-slate-500 dark:text-slate-400 hover:border-slate-400 dark:hover:border-slate-600 hover:text-slate-600 dark:hover:text-slate-300 transition-colors flex flex-col items-center justify-center"
             >
               <Plus className="h-5 w-5 mb-1" />
-              <span className="text-sm font-medium">Add Server</span>
+              <span className="text-sm font-medium">{t("Add Server")}</span>
             </button>
           </div>
         </>
       ) : (
         <div className="p-6 flex-1 overflow-y-auto">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-6">
-            {mode === "add" ? "Add New Server" : "Edit Server"}
+            {mode === "add" ? t("Add New Server") : t("Edit Server")}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="label">Server Name *</Label>
+              <Label htmlFor="label">{t("Server Name *")}</Label>
               <Input
                 id="label"
                 value={form.label}
                 onChange={(e) => setForm({ ...form, label: e.target.value })}
-                placeholder="My Web Server"
+                placeholder={t("My Web Server")}
                 className="mt-1.5"
                 disabled={submitting}
               />
@@ -457,7 +465,7 @@ export function Sidebar({
             </div>
             {!isLocalServer && (
             <div>
-              <Label htmlFor="url">Server URL</Label>
+              <Label htmlFor="url">{t("Server URL")}</Label>
               <div className="relative">
                 <Input
                   id="server-url"
@@ -493,27 +501,27 @@ export function Sidebar({
             )}
             {!isLocalServer && form.url && (
               <div>
-                <Label htmlFor="apiKey">API Key (Optional)</Label>
+                <Label htmlFor="apiKey">{t("API Key (Optional)")}</Label>
                 <Input
                   id="apiKey"
                   type="password"
                   value={form.apiKey}
                   onChange={(e) => setForm({ ...form, apiKey: e.target.value })}
-                  placeholder={form.hasExistingKey ? "••••••••••••••••" : "Enter API key if server has auth enabled"}
+                  placeholder={form.hasExistingKey ? "••••••••••••••••" : t("Enter API key if server has auth enabled")}
                   className="mt-1.5"
                   disabled={submitting}
                 />
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{form.hasExistingKey && !form.apiKey
-                  ? "Key saved. Changing the server address requires a new key."
-                  : "Required if the remote server has authentication enabled"}</p>
+                  ? t("Key saved. Changing the server address requires a new key.")
+                  : t("Required if the remote server has authentication enabled")}</p>
                 {(form.apiKey || form.hasExistingKey) && !/^https:\/\//i.test(form.url) && (
-                  <p role="status" className="mt-1 text-xs text-amber-700 dark:text-amber-300">HTTP sends this key without encryption. Use HTTPS or an encrypted VPN on untrusted networks.</p>
+                  <p role="status" className="mt-1 text-xs text-amber-700 dark:text-amber-300">{t("HTTP sends this key without encryption. Use HTTPS or an encrypted VPN on untrusted networks.")}</p>
                 )}
               </div>
             )}
             {availableParents.length > 0 && (
               <div>
-                <Label htmlFor="parent">Parent Server (Optional)</Label>
+                <Label htmlFor="parent">{t("Parent Server (Optional)")}</Label>
                 <select
                   id="parent"
                   value={form.parentId}
@@ -523,7 +531,7 @@ export function Sidebar({
                   className="w-full mt-1.5 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-2 text-sm disabled:opacity-50"
                   disabled={submitting}
                 >
-                  <option value="">None (Top-level server)</option>
+                  <option value="">{t("None (Top-level server)")}</option>
                   {availableParents.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.label || s.server}
@@ -547,19 +555,19 @@ export function Sidebar({
                   htmlFor="allow-unreachable"
                   className="ml-2 text-sm font-normal text-slate-600 dark:text-slate-400"
                 >
-                  Save even if unreachable
+                  {t("Save even if unreachable")}
                 </Label>
               </div>
             </div>
             )}
             {error && (
               <p className="mt-4 text-sm text-red-600 dark:text-red-500 bg-red-100 dark:bg-red-900/20 p-3 rounded-md">
-                {error}
+                {t(error)}
               </p>
             )}
             <div className="mt-6 flex flex-col sm:flex-row justify-end gap-2">
               <Button variant="outline" onClick={() => setMode("list")}>
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button
                 onClick={handleSubmit}
@@ -573,12 +581,12 @@ export function Sidebar({
                 {submitting ? (
                   <div className="flex items-center">
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {mode === "add" ? "Adding..." : "Saving..."}
+                    {mode === "add" ? t("Adding...") : t("Saving...")}
                   </div>
                 ) : mode === "add" ? (
-                  "Add Server"
+                  t("Add Server")
                 ) : (
-                  "Save Changes"
+                  t("Save Changes")
                 )}
               </Button>
             </div>
@@ -591,20 +599,18 @@ export function Sidebar({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Server</AlertDialogTitle>
+            <AlertDialogTitle>{t("Delete Server")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "
-              {serverToDelete?.label || serverToDelete?.server}"? This action
-              cannot be undone and will remove all associated data.
+              {t("Are you sure you want to delete \"{{name}}\"? This action cannot be undone and will remove all associated data.", { name: serverToDelete?.label || serverToDelete?.server })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               className="bg-red-600 hover:bg-red-700 focus:ring-red-500"
             >
-              Delete Server
+              {t("Delete Server")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

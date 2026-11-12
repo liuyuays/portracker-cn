@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CheckSquare, Square } from "lucide-react";
 import { ActionButton } from "./ActionButton";
 
@@ -15,6 +16,7 @@ export function SelectionActionButton({
   onToggleSelection,
   size = "sm"
 }) {
+  const { t } = useTranslation();
   const handleClick = () => {
     onToggleSelection?.(port, serverId);
   };
@@ -28,9 +30,9 @@ export function SelectionActionButton({
 
   const getTitle = () => {
     if (selectionMode) {
-      return isSelected ? "Deselect port" : "Select port";
+      return isSelected ? t("Deselect port") : t("Select port");
     }
-    return "Select port";
+    return t("Select port");
   };
 
   return (

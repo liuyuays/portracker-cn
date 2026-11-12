@@ -1,3 +1,6 @@
+import { t } from '../i18n/index.js';
+import { translateHealthReason } from './health-copy.js';
+
 const CORE_ROLES = new Set(['core_runtime', 'core_access']);
 const OVERRIDE_LABELS = {
   core_runtime: 'main service',
@@ -8,7 +11,7 @@ const OVERRIDE_LABELS = {
 };
 
 export function overrideReason(role) {
-  return `Marked as ${OVERRIDE_LABELS[role] || 'unknown'} by you.`;
+  return t('Marked as {{role}} by you.', { role: t(OVERRIDE_LABELS[role] || 'unknown') });
 }
 
 export function resolveComponentOverride(comp, ovRole) {
@@ -22,7 +25,7 @@ export function resolveComponentOverride(comp, ovRole) {
     ...comp,
     effectiveRole: overridden ? ovRole : baseRole,
     effectiveRuleId: overridden ? 'R2' : baseRuleId,
-    reason: overridden ? overrideReason(ovRole) : baseReason,
+    reason: overridden ? overrideReason(ovRole) : translateHealthReason(baseReason),
     overridden,
   };
 }

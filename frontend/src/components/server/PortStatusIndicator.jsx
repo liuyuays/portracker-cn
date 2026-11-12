@@ -1,3 +1,5 @@
+import { translateHealthReason } from "@/lib/health-copy";
+import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import {
   Tooltip,
@@ -21,6 +23,7 @@ export function PortStatusIndicator({
   port,
   onProtocolChange,
 }) {
+  const { t } = useTranslation();
   const sh = useServiceHealth();
   const isLocal = !serverId || serverId === "local";
   const shHit = sh.enabled && isLocal && port.container_id
@@ -110,7 +113,7 @@ export function PortStatusIndicator({
     if (checking) {
       return {
         color: "bg-blue-400 animate-pulse",
-        title: "Checking service status...",
+        title: t("Checking service status..."),
         hasWebUI: true,
       };
     }
@@ -118,7 +121,7 @@ export function PortStatusIndicator({
     if (!statusData) {
       return {
         color: "bg-gray-400",
-        title: "Status unknown",
+        title: t("Status unknown"),
         hasWebUI: true,
       };
     }
@@ -132,7 +135,7 @@ export function PortStatusIndicator({
     
     return {
       color: colorMap[statusData.color] || "bg-gray-400",
-      title: statusData.title || "Status unknown",
+      title: translateHealthReason(statusData.title) || t("Status unknown"),
       hasWebUI: statusData.hasWebUI !== false,
     };
   };
@@ -152,8 +155,8 @@ export function PortStatusIndicator({
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p className="font-medium">{label}</p>
-            {detail && <p className="text-xs text-slate-400">{detail}</p>}
+            <p className="font-medium">{t(label)}</p>
+            {detail && <p className="text-xs text-slate-400">{translateHealthReason(detail)}</p>}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -174,7 +177,7 @@ export function PortStatusIndicator({
         <TooltipContent>
           <p className="font-medium">{dotState.title}</p>
           {showNoWebUIIndicator && (
-            <p className="text-xs text-slate-400">No web UI available</p>
+            <p className="text-xs text-slate-400">{t("No web UI available")}</p>
           )}
         </TooltipContent>
       </Tooltip>

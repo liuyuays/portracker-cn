@@ -1,3 +1,5 @@
+import { translateHealthReason } from "@/lib/health-copy";
+import { useTranslation } from "react-i18next";
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -38,10 +40,10 @@ const PORT_DOT_CLASS = {
   gray: 'bg-gray-400',
 };
 
-function formatLatency(ms) {
+function formatLatency(ms, t) {
   if (ms == null || !Number.isFinite(ms)) return null;
-  if (ms < 1000) return `${ms} ms`;
-  return `${(ms / 1000).toFixed(1)} s`;
+  if (ms < 1000) return t("{{count}} ms", { count: ms });
+  return t("{{seconds}} s", { seconds: (ms / 1000).toFixed(1) });
 }
 
 function Badge({ children, tone = 'slate' }) {
@@ -59,18 +61,19 @@ function Badge({ children, tone = 'slate' }) {
   );
 }
 
-function suppressedReasonTooltip(reason, fallback) {
+function suppressedReasonTooltip(reason, fallback, t) {
   switch (reason) {
     case 'host-network':
-      return 'Container uses host networking; 127.0.0.1 stays local.';
+      return t('Container uses host networking; 127.0.0.1 stays local.');
     case 'no-bridge-ip':
-      return 'No bridge IP available to route through.';
+      return t('No bridge IP available to route through.');
     default:
-      return fallback || 'Bound to 127.0.0.1';
+      return translateHealthReason(fallback) || t('Bound to 127.0.0.1');
   }
 }
 
 function PortRow({ port, status, displayCtx }) {
+  const { t } = useTranslation();
   const proto = (port.protocol || 'tcp').toUpperCase();
   const ip = displayCtx
     ? getDisplayHost(port, displayCtx.serverId, displayCtx.serverUrl, displayCtx.hostOverride)
@@ -82,8 +85,8 @@ function PortRow({ port, status, displayCtx }) {
   const label = status ? status.label : 'checking';
   const dotClass = PORT_DOT_CLASS[color] || PORT_DOT_CLASS.gray;
   const tooltip = suppressed
-    ? suppressedReasonTooltip(status.suppressedReason, status.detail)
-    : (status && status.detail ? status.detail : undefined);
+    ? suppressedReasonTooltip(status.suppressedReason, status.detail, t)
+    : (status && status.detail ? translateHealthReason(status.detail) : undefined);
   return (
     <div className="flex items-center gap-2 py-1 pl-7 pr-3 text-xs" title={tooltip}>
       <span className={`w-1.5 h-1.5 rounded-full ${dotClass} flex-shrink-0`} />
@@ -91,8 +94,8 @@ function PortRow({ port, status, displayCtx }) {
         {ip}:{hp}
       </span>
       <span className="text-[10px] text-slate-400 dark:text-slate-500">{proto}{target}</span>
-      {port.internal ? <span className="text-[10px] text-slate-400 dark:text-slate-500">internal</span> : null}
-      <span className="ml-auto text-[10px] text-slate-500 dark:text-slate-400">{label}</span>
+      {port.internal ? <span className="text-[10px] text-slate-400 dark:text-slate-500">{t("internal")}</span> : null}
+      <span className="ml-auto text-[10px] text-slate-500 dark:text-slate-400">{t(label)}</span>
     </div>
   );
 }
@@ -114,9 +117,10 @@ function computePortStats(ports, containerId, portStatuses) {
 }
 
 function RoleOverrideSelect({ value, component, onChangeRole }) {
+  const { t } = useTranslation();
   return (
     <label className="flex items-center gap-1.5 flex-shrink-0">
-      <span className="text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500">Role</span>
+      <span className="text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500">{t("Role")}</span>
       <select
         value={value}
         onChange={(e) => {
@@ -127,7 +131,7 @@ function RoleOverrideSelect({ value, component, onChangeRole }) {
         className="text-xs px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
       >
         {ROLE_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
+          <option key={opt.value} value={opt.value}>{t(opt.label)}</option>
         ))}
       </select>
     </label>
@@ -135,19 +139,20 @@ function RoleOverrideSelect({ value, component, onChangeRole }) {
 }
 
 function ComponentRow({ component, onChangeRole, ports, portStatuses, displayCtx }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const probe = component.probe || {};
   const ok = probe.ok === true;
   const degraded = ok && probe.severity === 'yellow';
   const unknown = typeof probe.ok !== 'boolean';
   const err = probe.error;
-  const latency = formatLatency(probe.latencyMs);
+  const latency = formatLatency(probe.latencyMs, t);
   const displayRole = component.effectiveRole || component.role;
   const completed = ok && displayRole === 'job_expected_exit' && probe.evidence?.kind === 'job-completion';
   const roleInfo = SIMPLE_ROLE[displayRole] || SIMPLE_ROLE.unknown;
-  const name = component._serviceName || 'component';
+  const name = component._serviceName || t("component");
   const short = component.containerId ? component.containerId.slice(0, 12) : null;
-  const explanation = component.reason || '';
+  const explanation = translateHealthReason(component.reason) || '';
   const overridden = !!component.overridden;
   const canOverride = !!(component.containerId && component._serviceId && onChangeRole);
   const selectValue = overridden ? component.effectiveRole : 'auto';
@@ -165,9 +170,9 @@ function ComponentRow({ component, onChangeRole, ports, portStatuses, displayCtx
             )}
           </div>
           <div className="flex flex-wrap items-center gap-1.5 sm:flex-shrink-0">
-            <Badge tone={roleInfo.tone}>{roleInfo.label}</Badge>
-            {overridden && <Badge tone="blue">overridden</Badge>}
-            <Badge tone={unknown || completed ? 'slate' : degraded ? 'yellow' : ok ? 'green' : 'red'}>{completed ? 'completed' : unknown ? 'not assessed' : degraded ? 'degraded' : ok ? 'reachable' : 'unreachable'}</Badge>
+            <Badge tone={roleInfo.tone}>{t(roleInfo.label)}</Badge>
+            {overridden && <Badge tone="blue">{t("overridden")}</Badge>}
+            <Badge tone={unknown || completed ? 'slate' : degraded ? 'yellow' : ok ? 'green' : 'red'}>{t(completed ? 'completed' : unknown ? 'not assessed' : degraded ? 'degraded' : ok ? 'reachable' : 'unreachable')}</Badge>
           </div>
         </div>
         {explanation && (
@@ -196,11 +201,11 @@ function ComponentRow({ component, onChangeRole, ports, portStatuses, displayCtx
           >
             {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
             <span>
-              {portCount} port{portCount === 1 ? '' : 's'}
-              {failingPortCount > 0 ? ` · ${failingPortCount} unreachable` : ''}
-              {degradedPortCount > 0 ? ` · ${degradedPortCount} degraded` : ''}
-              {suppressedPortCount > 0 ? ` · ${suppressedPortCount} host-only` : ''}
-              {notCheckedPortCount > 0 ? ` · ${notCheckedPortCount} not checked` : ''}
+              {portCount === 1 ? t("{{count}} port", { count: portCount }) : t("{{count}} ports", { count: portCount })}
+              {failingPortCount > 0 ? t(" · {{count}} unreachable", { count: failingPortCount }) : ''}
+              {degradedPortCount > 0 ? t(" · {{count}} degraded", { count: degradedPortCount }) : ''}
+              {suppressedPortCount > 0 ? t(" · {{count}} host-only", { count: suppressedPortCount }) : ''}
+              {notCheckedPortCount > 0 ? t(" · {{count}} not checked", { count: notCheckedPortCount }) : ''}
             </span>
           </button>
         )}
@@ -221,25 +226,25 @@ function ComponentRow({ component, onChangeRole, ports, portStatuses, displayCtx
   );
 }
 
-function summarize(components) {
+function summarize(components, t) {
   const list = Array.isArray(components) ? components : [];
-  if (list.length === 0) return 'No component data available.';
+  if (list.length === 0) return t('No component data available.');
   const roleOf = (c) => c.effectiveRole || c.role;
   const mains = list.filter((c) => roleOf(c) === 'core_access' || roleOf(c) === 'core_runtime');
   const mainsOk = mains.filter((c) => c.probe && c.probe.ok === true);
   if (mains.length === 0) {
-    return `No main service identified (${list.length} component${list.length === 1 ? '' : 's'} found).`;
+    return list.length === 1 ? t("No main service identified ({{count}} component found).", { count: list.length }) : t("No main service identified ({{count}} components found).", { count: list.length });
   }
   const unassessed = mains.filter((component) => typeof component.probe?.ok !== 'boolean').length;
-  if (unassessed > 0) return `${unassessed} main component${unassessed === 1 ? '' : 's'} not assessed.`;
+  if (unassessed > 0) return unassessed === 1 ? t("{{count}} main component not assessed.", { count: unassessed }) : t("{{count}} main components not assessed.", { count: unassessed });
   const degradedMains = mainsOk.filter((c) => c.probe.severity === 'yellow').length;
   if (mainsOk.length === mains.length && degradedMains > 0) {
-    return `${degradedMains} of ${mains.length} main service${mains.length === 1 ? '' : 's'} reachable with issues.`;
+    return mains.length === 1 ? t("{{count}} of {{total}} main service reachable with issues.", { count: degradedMains, total: mains.length }) : t("{{count}} of {{total}} main services reachable with issues.", { count: degradedMains, total: mains.length });
   }
   if (mainsOk.length === mains.length) {
-    return `All ${mains.length} main service${mains.length === 1 ? '' : 's'} reachable.`;
+    return mains.length === 1 ? t("All {{count}} main service reachable.", { count: mains.length }) : t("All {{count}} main services reachable.", { count: mains.length });
   }
-  return `${mains.length - mainsOk.length} of ${mains.length} main service${mains.length === 1 ? '' : 's'} unreachable.`;
+  return mains.length === 1 ? t("{{count}} of {{total}} main service unreachable.", { count: mains.length - mainsOk.length, total: mains.length }) : t("{{count}} of {{total}} main services unreachable.", { count: mains.length - mainsOk.length, total: mains.length });
 }
 
 const LEGEND_CHIP_CLASS = 'inline-flex items-baseline gap-1 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-[11px] leading-snug';
@@ -252,6 +257,7 @@ const LEGEND_ITEMS = [
 ];
 
 function RoleLegend() {
+  const { t } = useTranslation();
   return (
     <div className="pt-2 space-y-2">
       <TooltipProvider delayDuration={150}>
@@ -260,10 +266,10 @@ function RoleLegend() {
             <Tooltip key={term}>
               <TooltipTrigger asChild>
                 <span tabIndex={-1} className={LEGEND_CHIP_CLASS + ' cursor-help'}>
-                  <span className={LEGEND_TERM_CLASS}>{term}</span>
+                  <span className={LEGEND_TERM_CLASS}>{t(term)}</span>
                 </span>
               </TooltipTrigger>
-              <TooltipContent>{desc}</TooltipContent>
+              <TooltipContent>{t(desc)}</TooltipContent>
             </Tooltip>
           ))}
         </div>
@@ -273,14 +279,15 @@ function RoleLegend() {
 }
 
 function ResetServiceRolesChip({ count, busy, confirming, onAskConfirm, onCancel, onConfirm }) {
+  const { t } = useTranslation();
   if (confirming) {
     return (
       <div
         role="group"
-        aria-label="Confirm reset roles"
+        aria-label={t("Confirm reset roles")}
         className="ml-auto inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/60 text-[10px] font-medium text-slate-700 dark:text-slate-200"
       >
-        <span className="px-0.5">Reset {count}?</span>
+        <span className="px-0.5">{t("Reset {{count}}?", { count })}</span>
         <button
           type="button"
           tabIndex={-1}
@@ -288,7 +295,7 @@ function ResetServiceRolesChip({ count, busy, confirming, onAskConfirm, onCancel
           disabled={busy}
           className="px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50"
         >
-          No
+          {t("No")}
         </button>
         <button
           type="button"
@@ -297,7 +304,7 @@ function ResetServiceRolesChip({ count, busy, confirming, onAskConfirm, onCancel
           disabled={busy}
           className="px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50"
         >
-          {busy ? '\u2026' : 'Yes'}
+          {busy ? '\u2026' : t('Yes')}
         </button>
       </div>
     );
@@ -309,14 +316,14 @@ function ResetServiceRolesChip({ count, busy, confirming, onAskConfirm, onCancel
           type="button"
           tabIndex={-1}
           onClick={(e) => { e.stopPropagation(); onAskConfirm(); }}
-          aria-label={`Reset ${count} customized role${count === 1 ? '' : 's'}`}
+          aria-label={count === 1 ? t("Reset {{count}} customized role", { count }) : t("Reset {{count}} customized roles", { count })}
           className="ml-auto inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-700/50 bg-blue-50 dark:bg-blue-900/30 text-[10px] font-medium text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50"
         >
           <RotateCcw className="w-3 h-3" />
           <span className="tabular-nums">{count}</span>
         </button>
       </TooltipTrigger>
-      <TooltipContent>Reset {count} customized role{count === 1 ? '' : 's'} for this service</TooltipContent>
+      <TooltipContent>{count === 1 ? t("Reset {{count}} customized role for this service", { count }) : t("Reset {{count}} customized roles for this service", { count })}</TooltipContent>
     </Tooltip>
   );
 }
@@ -362,11 +369,12 @@ export function WhyThisStatusPopover({
   serverUrl,
   hostOverride,
 }) {
+  const { t } = useTranslation();
   const [refreshing, setRefreshing] = useState(false);
   const ov = useServiceOverrideClear(components);
   const colorClass = COLOR_CLASSES[color] || COLOR_CLASSES.gray;
   const componentCount = Array.isArray(components) ? components.length : 0;
-  const summary = summarize(components);
+  const summary = summarize(components, t);
   const displayCtx = { serverId, serverUrl, hostOverride };
   const handleChangeRole = (serviceId, containerId, role) => {
     ov.setOverride(serviceId, containerId, role);
@@ -378,8 +386,8 @@ export function WhyThisStatusPopover({
     try { await onRefresh(); } finally { setRefreshing(false); }
   };
   const updatedLabel = updatedAt
-    ? `Updated ${Math.max(0, Math.round((Date.now() - updatedAt) / 1000))}s ago`
-    : 'Not yet updated';
+    ? t("Updated {{seconds}}s ago", { seconds: Math.max(0, Math.round((Date.now() - updatedAt) / 1000)) })
+    : t('Not yet updated');
   const stop = (e) => e.stopPropagation();
 
   return (
@@ -393,7 +401,7 @@ export function WhyThisStatusPopover({
         <DialogHeader>
           <div className="flex items-center gap-2">
             <span className={`w-2.5 h-2.5 rounded-full ${colorClass}`} />
-            <DialogTitle className="text-base">Why this status?</DialogTitle>
+            <DialogTitle className="text-base">{t("Why this status?")}</DialogTitle>
             {ov.serviceOverrideCount > 0 && ov.serviceIdForClear && (
               <ResetServiceRolesChip
                 count={ov.serviceOverrideCount}
@@ -416,7 +424,7 @@ export function WhyThisStatusPopover({
         <div className="border border-slate-200 dark:border-slate-700 rounded-md max-h-96 overflow-y-auto">
           {componentCount === 0 ? (
             <div className="p-4 text-sm text-slate-500 dark:text-slate-400 text-center">
-              No component data available.
+              {t("No component data available.")}
             </div>
           ) : (
             components.map((c, i) => (
@@ -437,7 +445,7 @@ export function WhyThisStatusPopover({
             <span className="text-xs text-slate-500 dark:text-slate-400">{updatedLabel}</span>
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
               <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${refreshing ? 'animate-spin' : ''}`} />
-              Refresh
+              {t("Refresh")}
             </Button>
           </div>
         </DialogFooter>

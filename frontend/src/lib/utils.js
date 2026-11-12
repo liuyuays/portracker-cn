@@ -1,3 +1,4 @@
+import i18n, { t } from '../i18n/index.js';
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge"
 
@@ -15,8 +16,8 @@ export function formatBytes(bytes, decimals = 2) {
 }
 
 export function formatUptime(totalSeconds, short = false) {
-  if (totalSeconds === undefined || totalSeconds === null || totalSeconds < 0) return 'N/A';
-  if (totalSeconds === 0) return short ? '0m' : 'Just now';
+  if (totalSeconds === undefined || totalSeconds === null || totalSeconds < 0) return t('N/A');
+  if (totalSeconds === 0) return short ? t('{{count}}m', { count: 0 }) : t('Just now');
 
   const days = Math.floor(totalSeconds / (3600 * 24));
   const hoursRemainder = totalSeconds % (3600 * 24);
@@ -25,21 +26,21 @@ export function formatUptime(totalSeconds, short = false) {
   const minutes = Math.floor(minutesRemainder / 60);
 
   if (short) {
-    if (days > 0) return `${days}d`;
-    if (hours > 0) return `${hours}h`;
-    return `${minutes}m`;
+    if (days > 0) return t('{{count}}d', { count: days });
+    if (hours > 0) return t('{{count}}h', { count: hours });
+    return t('{{count}}m', { count: minutes });
   }
 
   let uptimeString = '';
-  if (days > 0) uptimeString += `${days}d `;
-  if (hours > 0) uptimeString += `${hours}h `;
-  if (minutes > 0 || (days === 0 && hours === 0)) uptimeString += `${minutes}m`; 
+  if (days > 0) uptimeString += t('{{count}}d', { count: days }) + ' ';
+  if (hours > 0) uptimeString += t('{{count}}h', { count: hours }) + ' ';
+  if (minutes > 0 || (days === 0 && hours === 0)) uptimeString += t('{{count}}m', { count: minutes });
   
-  return uptimeString.trim() || '0m';
+  return uptimeString.trim() || t('{{count}}m', { count: 0 });
 }
 
 export function formatDuration(totalSeconds, { maxUnits = 3, showSeconds = false } = {}) {
-  if (totalSeconds == null || totalSeconds < 0) return '0s';
+  if (totalSeconds == null || totalSeconds < 0) return t('{{count}}s', { count: 0 });
   const units = [
     ['d', 86400],
     ['h', 3600],
@@ -52,12 +53,12 @@ export function formatDuration(totalSeconds, { maxUnits = 3, showSeconds = false
     if (label === 's' && !showSeconds && remaining < 60) break;
     const value = Math.floor(remaining / size);
     if (value > 0) {
-      parts.push(`${value}${label}`);
+      parts.push(t({ d: '{{count}}d', h: '{{count}}h', m: '{{count}}m', s: '{{count}}s' }[label], { count: value }));
       remaining -= value * size;
     }
     if (parts.length >= maxUnits) break;
   }
-  if (!parts.length) return showSeconds ? '0s' : '0m';
+  if (!parts.length) return t(showSeconds ? '{{count}}s' : '{{count}}m', { count: 0 });
   return parts.join(' ');
 }
 
@@ -67,7 +68,7 @@ export function formatCpuSpeed(mhz) {
 }
 
 export function formatCreatedDate(dateString) {
-  if (!dateString) return "N/A";
+  if (!dateString) return t("N/A");
   
   let date;
   if (typeof dateString === 'number') {
@@ -89,16 +90,16 @@ export function formatCreatedDate(dateString) {
   const diffWeek = Math.floor(diffDay / 7);
   const diffMonth = Math.floor(diffDay / 30);
 
-  if (diffMonth >= 1) return `${diffMonth} month${diffMonth > 1 ? "s" : ""} ago`;
-  if (diffWeek >= 1) return `${diffWeek} week${diffWeek > 1 ? "s" : ""} ago`;
-  if (diffDay >= 1) return `${diffDay} day${diffDay > 1 ? "s" : ""} ago`;
-  if (diffHr >= 1) return `${diffHr} hour${diffHr > 1 ? "s" : ""} ago`;
-  if (diffMin >= 1) return `${diffMin} minute${diffMin > 1 ? "s" : ""} ago`;
-  return "just now";
+  if (diffMonth >= 1) return t(diffMonth === 1 ? '{{count}} month ago' : '{{count}} months ago', { count: diffMonth });
+  if (diffWeek >= 1) return t(diffWeek === 1 ? '{{count}} week ago' : '{{count}} weeks ago', { count: diffWeek });
+  if (diffDay >= 1) return t(diffDay === 1 ? '{{count}} day ago' : '{{count}} days ago', { count: diffDay });
+  if (diffHr >= 1) return t(diffHr === 1 ? '{{count}} hour ago' : '{{count}} hours ago', { count: diffHr });
+  if (diffMin >= 1) return t(diffMin === 1 ? '{{count}} minute ago' : '{{count}} minutes ago', { count: diffMin });
+  return t("just now");
 }
 
 export function formatCreatedTooltip(dateString) {
-  if (!dateString) return "Created: N/A";
+  if (!dateString) return t("Created: N/A");
   
   let date;
   if (typeof dateString === 'number') {
@@ -106,13 +107,12 @@ export function formatCreatedTooltip(dateString) {
   } else if (typeof dateString === 'string') {
     date = new Date(dateString.replace(" +0000 UTC", "Z"));
   } else {
-    return "Created: N/A";
+    return t("Created: N/A");
   }
   
-  if (isNaN(date.getTime())) return `Created: ${dateString}`;
+  if (isNaN(date.getTime())) return t('Created: {{date}}', { date: dateString });
   return (
-    "Created: " +
-    date.toLocaleString(undefined, {
+    t('Created: {{date}}', { date: date.toLocaleString(i18n.resolvedLanguage, {
       year: "numeric",
       month: "short",
       day: "2-digit",
@@ -120,7 +120,7 @@ export function formatCreatedTooltip(dateString) {
       minute: "2-digit",
       hour12: false,
       timeZoneName: "short",
-    })
+    }) })
   );
 }
 

@@ -1,3 +1,5 @@
+import { translateHealthReason } from "@/lib/health-copy";
+import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef } from "react";
 import {
   Tooltip,
@@ -49,6 +51,7 @@ export function AggregatedHealthDot({
   serviceName,
   isDocker,
 }) {
+  const { t } = useTranslation();
   const [portStatuses, setPortStatuses] = useState({});
   const [checking, setChecking] = useState(true);
   const abortControllerRef = useRef(null);
@@ -162,7 +165,7 @@ export function AggregatedHealthDot({
     if (checking || Object.keys(portStatuses).length === 0) {
       return {
         color: "bg-blue-400 animate-pulse",
-        title: "Checking…",
+        title: t("Checking…"),
         hasNoWebUI: false,
       };
     }
@@ -179,7 +182,7 @@ export function AggregatedHealthDot({
       const redCount = externalColors.filter((c) => c === "red").length;
       return {
         color: "bg-red-500",
-        title: `${redCount} port${redCount !== 1 ? "s" : ""} unreachable`,
+        title: redCount === 1 ? t("{{count}} port unreachable", { count: redCount }) : t("{{count}} ports unreachable", { count: redCount }),
         hasNoWebUI: false,
       };
     }
@@ -188,7 +191,7 @@ export function AggregatedHealthDot({
       const yellowCount = externalColors.filter((c) => c === "yellow").length;
       return {
         color: "bg-yellow-500",
-        title: `${yellowCount} port${yellowCount !== 1 ? "s" : ""} with issues`,
+        title: yellowCount === 1 ? t("{{count}} port with issues", { count: yellowCount }) : t("{{count}} ports with issues", { count: yellowCount }),
         hasNoWebUI: false,
       };
     }
@@ -196,7 +199,7 @@ export function AggregatedHealthDot({
     if (allGreen) {
       return {
         color: "bg-green-500",
-        title: `All ${externalColors.length} port${externalColors.length !== 1 ? "s" : ""} healthy`,
+        title: externalColors.length === 1 ? t("All {{count}} port healthy", { count: externalColors.length }) : t("All {{count}} ports healthy", { count: externalColors.length }),
         hasNoWebUI,
       };
     }
@@ -204,14 +207,14 @@ export function AggregatedHealthDot({
     if (externalColors.length === 0 && statuses.length > 0) {
       return {
         color: "bg-gray-400",
-        title: "Internal ports only",
+        title: t("Internal ports only"),
         hasNoWebUI: false,
       };
     }
 
     return {
       color: "bg-gray-400",
-      title: "Status unknown",
+      title: t("Status unknown"),
       hasNoWebUI: false,
     };
   };
@@ -230,7 +233,7 @@ export function AggregatedHealthDot({
             </div>
           </TooltipTrigger>
           <TooltipContent className="max-w-[230px]">
-            <p className="font-medium text-xs">Checking…</p>
+            <p className="font-medium text-xs">{t("Checking…")}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -240,12 +243,12 @@ export function AggregatedHealthDot({
   if (shLookup && shLookup.color) {
     const colorClass = COLOR_CLASSES[shLookup.color] || COLOR_CLASSES.gray;
     const colorWord = {
-      green: "All reachable",
-      yellow: "Partially reachable",
-      red: "Main service unreachable",
-      gray: "Status unclear",
-    }[shLookup.color] || "Service health";
-    const title = shortStatusReason(shLookup.reason, colorWord);
+      green: t("All reachable"),
+      yellow: t("Partially reachable"),
+      red: t("Main service unreachable"),
+      gray: t("Status unclear"),
+    }[shLookup.color] || t("Service health");
+    const title = shortStatusReason(translateHealthReason(shLookup.reason), colorWord);
     return (
       <>
         <TooltipProvider>
@@ -264,7 +267,7 @@ export function AggregatedHealthDot({
                   }
                 }}
                 className="relative flex flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
-                aria-label={`Service status: ${title}. Open details.`}
+                aria-label={t("Service status: {{status}}. Open details.", { status: title })}
               >
                 <div className={`w-2 h-2 rounded-full ${colorClass}`} />
                 <span aria-hidden="true" className="absolute -inset-2" />
@@ -283,7 +286,7 @@ export function AggregatedHealthDot({
         <WhyThisStatusPopover
           open={explainerOpen}
           onOpenChange={setExplainerOpen}
-          serviceName={serviceName || (shLookup.services[0] && shLookup.services[0].name) || "service"}
+          serviceName={serviceName || (shLookup.services[0] && shLookup.services[0].name) || t("service")}
           color={shLookup.color}
           reason={shLookup.reason}
           components={shLookup.components}
@@ -318,7 +321,7 @@ export function AggregatedHealthDot({
         >
           <p className="font-medium text-xs">{state.title}</p>
           {state.hasNoWebUI && (
-            <p className="text-xs text-slate-400">Some ports have no web UI</p>
+            <p className="text-xs text-slate-400">{t("Some ports have no web UI")}</p>
           )}
         </TooltipContent>
       </Tooltip>

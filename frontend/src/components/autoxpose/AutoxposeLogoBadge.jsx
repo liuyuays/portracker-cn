@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React from "react";
 import { AutoxposeLogo } from "./AutoxposeLogo";
 import {
@@ -7,6 +8,7 @@ import {
 } from "../ui/tooltip";
 
 export function AutoxposeLogoBadge({ connected = false, className = "" }) {
+  const { t } = useTranslation();
   if (!connected) {
     return null;
   }
@@ -24,7 +26,7 @@ export function AutoxposeLogoBadge({ connected = false, className = "" }) {
         </div>
       </TooltipTrigger>
       <TooltipContent side="bottom" className="text-xs">
-        Connected to Autoxpose
+        {t("Connected to Autoxpose")}
       </TooltipContent>
     </Tooltip>
   );

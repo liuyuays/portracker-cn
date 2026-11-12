@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 import { ExternalLink, Lock, Tag } from "lucide-react";
 import {
@@ -38,8 +39,8 @@ const renderHighlightedText = (content) => {
   );
 };
 
-const getDisplayServiceName = (port) => {
-  return port.customServiceName || port.owner || "Unknown Service";
+const getDisplayServiceName = (port, t) => {
+  return port.customServiceName || port.owner || t("Unknown Service");
 };
 
 function PortTableRowComponent({
@@ -64,6 +65,7 @@ function PortTableRowComponent({
   autoxposeDisplayMode = "url",
   autoxposeUrlStyle = "compact",
 }) {
+  const { t } = useTranslation();
   const [protocol, setProtocol] = useState("http");
   const [showDetails, setShowDetails] = useState(false);
   const searchMatches = getSearchMatches(port, searchTerm);
@@ -158,13 +160,13 @@ function PortTableRowComponent({
                   )}
                 </TooltipTrigger>
                 {port.internal ? (
-                  <TooltipContent>Internal only</TooltipContent>
+                  <TooltipContent>{t("Internal only")}</TooltipContent>
                 ) : (
                   !port.internal && port.target && (
                     <TooltipContent>
                       {searchMatches.target ? (
                         <span>
-                          Internal:{" "}
+                          {t("Internal:")}{" "}
                           {shouldHighlight
                             ? renderHighlightedText(
                                 highlightText(port.target, searchTerm)
@@ -172,7 +174,7 @@ function PortTableRowComponent({
                             : port.target}
                         </span>
                       ) : (
-                        `Internal: ${port.target}`
+                        t("Internal: {{target}}", { target: port.target })
                       )}
                     </TooltipContent>
                   )
@@ -199,7 +201,7 @@ function PortTableRowComponent({
           
           {searchMatches.target && port.target !== port.host_port.toString() && (
             <span className="text-xs text-slate-500 dark:text-slate-400 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded border border-yellow-200 dark:border-yellow-700/50">
-              Internal:{" "}
+              {t("Internal:")}{" "}
               {shouldHighlight
                 ? renderHighlightedText(highlightText(port.target, searchTerm))
                 : port.target}
@@ -221,13 +223,13 @@ function PortTableRowComponent({
                       onClick={() => setShowDetails(true)}
                       className="inline-flex items-center gap-1.5 w-fit whitespace-nowrap cursor-pointer rounded-md px-1.5 py-0.5 transition-colors hover:bg-slate-100/70 dark:hover:bg-slate-800/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
                     >
-                      {showIcons && <ServiceIcon name={getDisplayServiceName(port)} size={16} />}
+                      {showIcons && <ServiceIcon name={getDisplayServiceName(port, t)} size={16} />}
                       {shouldHighlight
-                        ? renderHighlightedText(highlightText(getDisplayServiceName(port), searchTerm))
-                        : getDisplayServiceName(port)}
+                        ? renderHighlightedText(highlightText(getDisplayServiceName(port, t), searchTerm))
+                        : getDisplayServiceName(port, t)}
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent>Open container details</TooltipContent>
+                  <TooltipContent>{t("Open container details")}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
               <div className="opacity-40 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
@@ -237,7 +239,7 @@ function PortTableRowComponent({
                   actionFeedback={actionFeedback}
                   onClick={() => onRename(serverId, port)}
                   icon={Tag}
-                  title="Rename service"
+                  title={t("Rename service")}
                   size="sm"
                 />
               </div>
@@ -245,10 +247,10 @@ function PortTableRowComponent({
           ) : (
             <div className="flex items-center space-x-1">
               <span className="truncate inline-flex items-center gap-1.5">
-                {showIcons && <ServiceIcon name={getDisplayServiceName(port)} size={16} />}
+                {showIcons && <ServiceIcon name={getDisplayServiceName(port, t)} size={16} />}
                 {shouldHighlight
-                  ? renderHighlightedText(highlightText(getDisplayServiceName(port), searchTerm))
-                  : getDisplayServiceName(port)}
+                  ? renderHighlightedText(highlightText(getDisplayServiceName(port, t), searchTerm))
+                  : getDisplayServiceName(port, t)}
               </span>
               <div className="opacity-40 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
                 <ActionButton
@@ -257,7 +259,7 @@ function PortTableRowComponent({
                   actionFeedback={actionFeedback}
                   onClick={() => onRename(serverId, port)}
                   icon={Tag}
-                  title="Rename service"
+                  title={t("Rename service")}
                   size="sm"
                 />
               </div>
@@ -288,7 +290,7 @@ function PortTableRowComponent({
               : "bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-200"
           }`}
         >
-          {port.source}
+          {port.source === "docker" || port.source === "system" ? t(port.source) : port.source}
         </span>
       </td>
 
@@ -306,7 +308,7 @@ function PortTableRowComponent({
             </Tooltip>
           </TooltipProvider>
         ) : (
-          "N/A"
+          t("N/A")
         )}
       </td>
 

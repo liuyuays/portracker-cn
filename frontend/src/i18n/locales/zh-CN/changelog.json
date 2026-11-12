@@ -1,0 +1,22 @@
+{
+  "More accurate service health": "更准确的服务健康状态",
+  "See each port's own result; review component roles when overall health is unclear.": "查看各端口独立的检查结果；整体健康状态不明确时，可检查组件角色。",
+  "Rename the local server": "重命名本地服务器",
+  "Set a custom name for the built-in local server without entering a peer URL.": "为内置的本地服务器设置自定义名称，无需填写远程服务器地址。",
+  "Check peer servers from the backend": "通过后端检查远程服务器",
+  "Add or edit peer servers without browser cross-origin errors blocking valid peers.": "添加或编辑远程服务器时，避免浏览器跨域限制阻止有效连接。",
+  "Better protection for service health": "加强服务健康配置保护",
+  "Review saved service roles if you suspect misuse of a peer API key.": "如果怀疑远程服务器的 API 密钥被滥用，请检查已保存的服务角色。",
+  "Filter ports by listening address": "按监听地址筛选端口",
+  "Show server-only or network-listening ports from Search & filters.": "通过“搜索与筛选”查看仅本机监听或网络监听的端口。",
+  "Better protection for your servers": "更好地保护服务器",
+  "Container details now hide sensitive settings. If you use connected servers, include the encryption key file with your database backups.": "容器详情现在会隐藏敏感设置。使用远程服务器时，请将加密密钥文件与数据库一同备份。",
+  "Correct memory sizes for TrueNAS containers": "修正 TrueNAS 容器内存大小",
+  "Container memory now shows the correct amount instead of unrealistically large values.": "容器内存现在显示正确数值，避免出现异常大的容量。",
+  "Fixed startup on Apple Silicon Macs": "修复 Apple Silicon Mac 启动问题",
+  "Portracker now starts correctly in Docker on Apple Silicon Macs and other ARM-based devices.": "portracker 现在可以在 Apple Silicon Mac 及其他 ARM 设备的 Docker 中正常启动。",
+  "Sign-in protection for settings and autoxpose": "为设置和 autoxpose 添加登录保护",
+  "With sign-in enabled, you must be signed in to access settings and autoxpose controls. Reconnect autoxpose once after upgrading. Reported by Mirko Benacci.": "启用登录功能后，需要先登录才能访问设置和 autoxpose。升级后请重新连接一次 autoxpose。此问题由 Mirko Benacci 报告。",
+  "Fixed dashboard crashes with some apps": "修复部分应用导致的仪表盘崩溃",
+  "Apps that list thousands of internal ports no longer overwhelm the dashboard. Published ports remain visible.": "列出大量内部端口的应用不会再导致仪表盘崩溃，已发布的端口仍会显示。"
+}

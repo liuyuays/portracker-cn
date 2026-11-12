@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './dialog';
 import { Button } from './button';
@@ -32,22 +33,23 @@ const hasAutoxpose = (item) => {
 };
 
 const HighlightsSection = ({ highlights, onOpenSettings, onClose }) => {
+  const { t } = useTranslation();
   if (!highlights?.length) return null;
   
   return (
     <div className="mb-6 p-4 rounded-lg bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-800">
       <div className="flex items-center gap-2 mb-3">
         <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
-        <h3 className="font-bold text-slate-900 dark:text-slate-100">Highlights</h3>
+        <h3 className="font-bold text-slate-900 dark:text-slate-100">{t("Highlights")}</h3>
       </div>
       <ul className="space-y-2">
         {highlights.map((item, index) => (
           <li key={index} className="flex items-start gap-2">
             <span className="text-indigo-600 dark:text-indigo-400 mt-0.5">•</span>
             <div>
-              <span className="font-semibold text-slate-900 dark:text-slate-100">{linkifyAutoxpose(item.title)}</span>
+              <span className="font-semibold text-slate-900 dark:text-slate-100">{linkifyAutoxpose(t(item.title))}</span>
               {item.description && (
-                <span className="text-slate-600 dark:text-slate-400"> - {linkifyAutoxpose(item.description)}</span>
+                <span className="text-slate-600 dark:text-slate-400"> - {linkifyAutoxpose(t(item.description))}</span>
               )}
               {hasAutoxpose(item) && (
                 <button
@@ -57,7 +59,7 @@ const HighlightsSection = ({ highlights, onOpenSettings, onClose }) => {
                   }}
                   className="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors cursor-pointer border-none"
                 >
-                  Set up →
+                  {t("Set up →")}
                 </button>
               )}
             </div>
@@ -69,6 +71,7 @@ const HighlightsSection = ({ highlights, onOpenSettings, onClose }) => {
 };
 
 const FeatureCard = ({ feature, index }) => {
+  const { t } = useTranslation();
   const IconComponent = getFeatureIcon(feature);
   const hasDetails = feature.details?.length > 0;
   
@@ -89,11 +92,11 @@ const FeatureCard = ({ feature, index }) => {
         
         <div className="flex-1 min-w-0">
           <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-sm leading-tight mb-1 transition-colors">
-            {feature.title}
+            {t(feature.title)}
           </h4>
           {feature.description && (
             <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-              {feature.description}
+              {t(feature.description)}
             </p>
           )}
           {hasDetails && (
@@ -104,9 +107,9 @@ const FeatureCard = ({ feature, index }) => {
                   <div>
                     {detail.title ? (
                       <>
-                        <span className="font-medium text-slate-800 dark:text-slate-200">{detail.title}</span>
+                        <span className="font-medium text-slate-800 dark:text-slate-200">{t(detail.title)}</span>
                         {detail.description && (
-                          <span className="text-slate-600 dark:text-slate-400">: {detail.description}</span>
+                          <span className="text-slate-600 dark:text-slate-400">: {t(detail.description)}</span>
                         )}
                       </>
                     ) : (
@@ -144,7 +147,9 @@ const VersionBadge = ({ version }) => (
   </div>
 );
 
-const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
+const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => {
+  const { t } = useTranslation();
+  return (
   <div 
     className={cn(
       "space-y-4 p-4 rounded-lg border bg-gradient-to-br transition-all duration-500",
@@ -157,7 +162,7 @@ const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
     <div className="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-700">
       <VersionBadge version={versionData.version} />
       <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-        Version {versionData.version}
+        {t("Version")} {versionData.version}
       </h2>
     </div>
 
@@ -166,7 +171,7 @@ const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
     <div className="space-y-4">
       {versionData.changes.security?.length > 0 && (
         <CategorySection
-          title="Security & Access Control"
+          title={t("Security & Access Control")}
           features={versionData.changes.security}
           icon={Shield}
         />
@@ -174,7 +179,7 @@ const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
 
       {versionData.changes.dashboard?.length > 0 && (
         <CategorySection
-          title="Dashboard & UX"
+          title={t("Dashboard & UX")}
           features={versionData.changes.dashboard}
           icon={Layout}
         />
@@ -182,7 +187,7 @@ const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
 
       {versionData.changes.integrations?.length > 0 && (
         <CategorySection
-          title="Server Integrations"
+          title={t("Server Integrations")}
           features={versionData.changes.integrations}
           icon={Server}
         />
@@ -190,7 +195,7 @@ const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
 
       {versionData.changes.data?.length > 0 && (
         <CategorySection
-          title="Data & Infrastructure"
+          title={t("Data & Infrastructure")}
           features={versionData.changes.data}
           icon={HardDrive}
         />
@@ -198,7 +203,7 @@ const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
 
       {versionData.changes.tooling?.length > 0 && (
         <CategorySection
-          title="Operations & Tooling"
+          title={t("Operations & Tooling")}
           features={versionData.changes.tooling}
           icon={Wrench}
         />
@@ -206,7 +211,7 @@ const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
 
       {versionData.changes.fixes?.length > 0 && (
         <CategorySection
-          title="Stability & Fixes"
+          title={t("Stability & Fixes")}
           features={versionData.changes.fixes}
           icon={Bandage}
         />
@@ -214,7 +219,7 @@ const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
 
       {versionData.changes.frontend?.length > 0 && (
         <CategorySection
-          title="Frontend Improvements"
+          title={t("Frontend Improvements")}
           features={versionData.changes.frontend}
           icon={Globe}
         />
@@ -222,7 +227,7 @@ const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
 
       {versionData.changes.backend?.length > 0 && (
         <CategorySection
-          title="Backend Enhancements"
+          title={t("Backend Enhancements")}
           features={versionData.changes.backend}
           icon={Database}
         />
@@ -230,7 +235,7 @@ const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
 
       {versionData.changes.misc?.length > 0 && (
         <CategorySection
-          title="Other Updates"
+          title={t("Other Updates")}
           features={versionData.changes.misc}
           icon={Package}
         />
@@ -238,14 +243,17 @@ const VersionSection = ({ versionData, index, onOpenSettings, onClose }) => (
     </div>
   </div>
 );
+};
 
-const FlatChangesDisplay = ({ changes, onOpenSettings, onClose }) => (
+const FlatChangesDisplay = ({ changes, onOpenSettings, onClose }) => {
+  const { t } = useTranslation();
+  return (
   <>
     <HighlightsSection highlights={changes.highlights} onOpenSettings={onOpenSettings} onClose={onClose} />
 
     {changes.security?.length > 0 && (
       <CategorySection
-        title="Security & Access Control"
+        title={t("Security & Access Control")}
         features={changes.security}
         icon={Shield}
       />
@@ -253,7 +261,7 @@ const FlatChangesDisplay = ({ changes, onOpenSettings, onClose }) => (
 
     {changes.dashboard?.length > 0 && (
       <CategorySection
-        title="Dashboard & UX"
+        title={t("Dashboard & UX")}
         features={changes.dashboard}
         icon={Layout}
       />
@@ -261,7 +269,7 @@ const FlatChangesDisplay = ({ changes, onOpenSettings, onClose }) => (
 
     {changes.integrations?.length > 0 && (
       <CategorySection
-        title="Server Integrations"
+        title={t("Server Integrations")}
         features={changes.integrations}
         icon={Server}
       />
@@ -269,7 +277,7 @@ const FlatChangesDisplay = ({ changes, onOpenSettings, onClose }) => (
 
     {changes.data?.length > 0 && (
       <CategorySection
-        title="Data & Infrastructure"
+        title={t("Data & Infrastructure")}
         features={changes.data}
         icon={HardDrive}
       />
@@ -277,7 +285,7 @@ const FlatChangesDisplay = ({ changes, onOpenSettings, onClose }) => (
 
     {changes.tooling?.length > 0 && (
       <CategorySection
-        title="Operations & Tooling"
+        title={t("Operations & Tooling")}
         features={changes.tooling}
         icon={Wrench}
       />
@@ -285,7 +293,7 @@ const FlatChangesDisplay = ({ changes, onOpenSettings, onClose }) => (
 
     {changes.fixes?.length > 0 && (
       <CategorySection
-        title="Stability & Fixes"
+        title={t("Stability & Fixes")}
         features={changes.fixes}
         icon={Bandage}
       />
@@ -293,7 +301,7 @@ const FlatChangesDisplay = ({ changes, onOpenSettings, onClose }) => (
 
     {changes.frontend?.length > 0 && (
       <CategorySection
-        title="Frontend Improvements"
+        title={t("Frontend Improvements")}
         features={changes.frontend}
         icon={Globe}
       />
@@ -301,7 +309,7 @@ const FlatChangesDisplay = ({ changes, onOpenSettings, onClose }) => (
 
     {changes.backend?.length > 0 && (
       <CategorySection
-        title="Backend Enhancements"
+        title={t("Backend Enhancements")}
         features={changes.backend}
         icon={Database}
       />
@@ -309,16 +317,25 @@ const FlatChangesDisplay = ({ changes, onOpenSettings, onClose }) => (
 
     {changes.misc?.length > 0 && (
       <CategorySection
-        title="Other Updates"
+        title={t("Other Updates")}
         features={changes.misc}
         icon={Package}
       />
     )}
   </>
 );
+};
 
 export function WhatsNewModal({ isOpen, onClose, onDismiss, version, changes, groupedChanges, onOpenSettings }) {
+  const { t, i18n } = useTranslation();
   const hasGroupedData = groupedChanges?.length > 0;
+  const containsOriginalText = value => {
+    if (typeof value === 'string') return value.length > 0 && !i18n.exists(value, { lng: 'zh-CN', fallbackLng: false });
+    if (Array.isArray(value)) return value.some(containsOriginalText);
+    if (!value || typeof value !== 'object') return false;
+    return Object.entries(value).some(([key, item]) => !['version', 'date'].includes(key) && containsOriginalText(item));
+  };
+  const showOriginalNotice = i18n.resolvedLanguage === 'zh-CN' && containsOriginalText(hasGroupedData ? groupedChanges : changes);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -330,15 +347,16 @@ export function WhatsNewModal({ isOpen, onClose, onDismiss, version, changes, gr
             </div>
             <div>
               <DialogTitle className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                What&apos;s New in portracker {version}
+                {t("What's New in portracker")} {version}
               </DialogTitle>
               <DialogDescription className="text-slate-600 dark:text-slate-400 mt-1">
-                A quick look at the changes you&apos;ll actually notice.
+                {t("A quick look at the changes you'll actually notice.")}
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
+        {showOriginalNotice && <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">{t('Some release notes are shown in their original English.')}</p>}
         <div className="overflow-y-auto pr-2 -mr-2" style={{ maxHeight: 'calc(80vh - 200px)' }}>
           <div className="space-y-6">
             {hasGroupedData ? (
@@ -362,14 +380,14 @@ export function WhatsNewModal({ isOpen, onClose, onDismiss, version, changes, gr
             }}
             className="text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
           >
-            Don&apos;t show again
+            {t("Don't show again")}
           </Button>
           
           <Button
             onClick={onClose}
             className="min-w-[120px] bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-500 dark:hover:bg-indigo-600 transition-colors duration-200"
           >
-            Back to dashboard
+            {t("Back to dashboard")}
           </Button>
         </div>
       </DialogContent>

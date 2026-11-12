@@ -304,10 +304,10 @@ const codebasePlugin = {
 };
 
 module.exports = [
-  { ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/*.min.js', '**/*.bundle.js', 'portracker.tar', 'test-results/**', 'scripts/*', '!scripts/*contract*', '!scripts/check-build-context.mjs'] },
+  { ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/*.min.js', '**/*.bundle.js', 'portracker.tar', 'test-results/**', 'deploy/**', 'scripts/*', '!scripts/*contract*', '!scripts/check-build-context.mjs', '!scripts/package-docker*.mjs'] },
 
   {
-    files: ['scripts/*contract*.{cjs,mjs}', 'scripts/check-build-context.mjs'],
+    files: ['scripts/*contract*.{cjs,mjs}', 'scripts/check-build-context.mjs', 'scripts/package-docker*.mjs'],
     languageOptions: { ecmaVersion: 'latest', globals: { ...globals.node, ...globals.browser } },
     plugins: { logs: logsPlugin },
     rules: {

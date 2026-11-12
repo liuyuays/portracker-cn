@@ -1,0 +1,11 @@
+# 项目源码中与 docker-compose.yml 叠加使用；打包时合并进单个 docker-compose.yaml。
+services:
+  portracker:
+    image: portracker-cn:local
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      ENABLE_AUTH: "${ENABLE_AUTH:-true}"
+      SESSION_SECRET: "${SESSION_SECRET:-}"

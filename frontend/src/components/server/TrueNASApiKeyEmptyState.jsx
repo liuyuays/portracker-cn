@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 import { Key, Server, Box, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { TrueNASApiKeyModal } from "./TrueNASApiKeyModal";
  * Encourages users to add API key to unlock enhanced features
  */
 export function TrueNASApiKeyEmptyState() {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -25,10 +27,10 @@ export function TrueNASApiKeyEmptyState() {
           
           <div className="space-y-2">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              Enhanced TrueNAS Features Available
+              {t("Enhanced TrueNAS Features Available")}
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md">
-              Add a TrueNAS API key to unlock advanced monitoring capabilities
+              {t("Add a TrueNAS API key to unlock advanced monitoring capabilities")}
             </p>
           </div>
 
@@ -37,19 +39,19 @@ export function TrueNASApiKeyEmptyState() {
             <div className="flex items-center justify-center space-x-2 p-3 bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
               <Server className="h-4 w-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
               <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                Virtual Machines
+                {t("Virtual Machines")}
               </span>
             </div>
             <div className="flex items-center justify-center space-x-2 p-3 bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
               <Box className="h-4 w-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
               <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                LXC Containers
+                {t("LXC Containers")}
               </span>
             </div>
             <div className="flex items-center justify-center space-x-2 p-3 bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
               <BarChart3 className="h-4 w-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
               <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                Enhanced System Info
+                {t("Enhanced System Info")}
               </span>
             </div>
           </div>
@@ -59,7 +61,7 @@ export function TrueNASApiKeyEmptyState() {
             onClick={() => setIsModalOpen(true)}
             className="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-indigo-500 dark:hover:bg-indigo-600"
           >
-            Setup Guide
+            {t("Setup Guide")}
           </Button>
         </div>
       </div>

@@ -53,3 +53,5 @@ coverage/
 !CHANGELOG.md
 !README.md
 !package.json
+
+deploy/

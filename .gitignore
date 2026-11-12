@@ -76,3 +76,5 @@ docker-compose.personal.yml
 backend/docker-compose.dev.yml
 backend/Dockerfile.dev
 dev
+
+deploy/

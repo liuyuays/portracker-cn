@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import {
@@ -37,6 +38,7 @@ export function ServiceCardTableRow({
   autoxposeUrlStyle = "compact",
   autoxposePorts,
 }) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const publishedPorts = ports.filter((p) => !p.internal);
@@ -155,7 +157,7 @@ export function ServiceCardTableRow({
                 : "bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-200"
             }`}
           >
-            {isDocker ? "docker" : "system"}
+            {t(isDocker ? "docker" : "system")}
           </span>
         </td>
         <td className="px-4 py-3 text-xs text-slate-500 dark:text-slate-400">
@@ -171,7 +173,7 @@ export function ServiceCardTableRow({
               </Tooltip>
             </TooltipProvider>
           ) : (
-            "N/A"
+            t("N/A")
           )}
         </td>
         <td className="px-4 py-3 text-center">

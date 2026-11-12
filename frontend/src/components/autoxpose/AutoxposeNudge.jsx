@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Globe, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ export function AutoxposeNudge({
   autoxposeConnected, 
   onOpenSettings 
 }) {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const [service, setService] = useState(null);
   const [dismissed, setDismissed] = useState(false);
@@ -65,10 +67,10 @@ export function AutoxposeNudge({
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
-              Running {service.displayName}?
+              {t("Running {{name}}?", { name: service.displayName })}
             </p>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-              See if it&apos;s publicly exposed with{' '}
+              {t("See if it's publicly exposed with")}{' '}
               <a 
                 href={AUTOXPOSE_REPO}
                 target="_blank"
@@ -85,7 +87,7 @@ export function AutoxposeNudge({
                 onClick={handleConnect}
                 className="h-7 px-3 text-xs"
               >
-                Connect
+                {t('Connect')}
               </Button>
               <Button 
                 size="sm" 
@@ -93,7 +95,7 @@ export function AutoxposeNudge({
                 onClick={handleDismiss}
                 className="h-7 px-2 text-xs text-slate-500"
               >
-                Maybe later
+                {t('Maybe later')}
               </Button>
             </div>
           </div>

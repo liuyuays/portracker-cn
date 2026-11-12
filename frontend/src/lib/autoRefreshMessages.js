@@ -1,3 +1,4 @@
+import { t } from '../i18n/index.js';
 const GENERAL_MESSAGES = [
   "Shushing noisy daemons… give us 30 seconds.",
   "Counting bits, bytes, and bad decisions.",
@@ -19,13 +20,13 @@ const GENERAL_MESSAGES = [
 
 const TRUE_NAS_MESSAGE = "Asking TrueNAS if it woke another VM.";
 
-export function buildAutoRefreshMessages({ isTrueNAS = false, currentPort = "4999" } = {}) {
-  const base = [...GENERAL_MESSAGES];
+export function buildAutoRefreshMessages({ isTrueNAS = false, currentPort = "4999", translate = t } = {}) {
+  const base = GENERAL_MESSAGES.map(message => translate(message));
 
-  base.push(`Confirming that Port ${currentPort} still belongs to you.`);
+  base.push(translate('Confirming that Port {{port}} still belongs to you.', { port: currentPort }));
 
   if (isTrueNAS) {
-    base.push(TRUE_NAS_MESSAGE);
+    base.push(translate(TRUE_NAS_MESSAGE));
   }
 
   const shuffled = base

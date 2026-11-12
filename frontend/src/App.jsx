@@ -1,3 +1,5 @@
+import { translateMessage } from './i18n/messages.js';
+import { useTranslation } from 'react-i18next';
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import {
@@ -37,7 +39,6 @@ import { batchNotes, saveNote } from "./lib/api/notes";
 import { getAutoxposeStatus, connectAutoxpose, disconnectAutoxpose, setAutoxposeDisplayMode, setAutoxposeUrlStyle, getAutoxposeServices, getAutoxposeDomain } from "./lib/api/autoxpose";
 import { AutoxposeNudge } from "./components/autoxpose";
 import { generatePortKey } from "./lib/utils/portUtils";
-import { formatUptime } from "@/lib/utils";
 import { useAuth } from "./contexts/AuthContext";
 import { buildAutoRefreshMessages } from "@/lib/autoRefreshMessages";
 import { ServiceHealthProvider } from "@/hooks/useServiceHealth";
@@ -49,6 +50,7 @@ const keyOf = (srvId, p) => generatePortKey(srvId, p);
 const logger = new Logger('App');
 
 export default function App() {
+  const { t } = useTranslation();
   const auth = useAuth();
   const { shouldShowButton: shouldShowWhatsNewButton, handleShow: handleShowWhatsNew, getModalProps: getWhatsNewModalProps } = useWhatsNew();
   const [groups, setGroups] = useState([]);
@@ -1741,10 +1743,11 @@ export default function App() {
       }
       const data = await response.json();
       const uptimeSeconds = data?.uptimeSeconds ?? Math.floor(data?.uptime || 0);
-      const uptimeLabel = uptimeSeconds ? formatUptime(uptimeSeconds) : "unknown";
       pushHealthToast({
         type: "success",
-        message: `Heartbeat steady: ${latency}ms - uptime ${uptimeLabel}`,
+        message: "Heartbeat steady: {{latency}}ms - uptime {{uptime}}",
+        latency,
+        uptimeSeconds,
       });
     } catch (error) {
       pushHealthToast({
@@ -1792,15 +1795,16 @@ export default function App() {
     return buildAutoRefreshMessages({
       isTrueNAS,
       currentPort: appPort || "4999",
+      translate: t,
     });
-  }, [selectedServerData, appPort]);
+  }, [selectedServerData, appPort, t]);
 
   if (auth.loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+          <p className="text-slate-600 dark:text-slate-400">{t("Loading...")}</p>
         </div>
       </div>
     );
@@ -1826,7 +1830,7 @@ export default function App() {
         server={server.server}
         ok={server.ok}
         data={filteredServer.data || []}
-        error={server.error}
+        error={translateMessage(server.error)}
         errorType={server.errorType}
         searchTerm={searchHighlighting ? searchTerm : ""}
         actionFeedback={actionFeedback}
@@ -1927,7 +1931,7 @@ export default function App() {
     if (matching.length === 0) {
       return (
         <div className="text-center py-12 text-gray-500 dark:text-slate-400">
-          No matches across servers.
+          {t("No matches across servers.")}
         </div>
       );
     }
@@ -1950,7 +1954,7 @@ export default function App() {
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg shadow-lg border backdrop-blur-sm pointer-events-none animate-in fade-in-0 slide-in-from-top-2 duration-200 bg-white/95 dark:bg-slate-800/95 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100">
           <div className="flex items-center gap-2">
             <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-indigo-500 dark:bg-indigo-400 animate-pulse" />
-            <span className="text-sm font-medium">{konamiHint}</span>
+            <span className="text-sm font-medium">{t(konamiHint)}</span>
           </div>
         </div>
       )}
@@ -1973,7 +1977,7 @@ export default function App() {
             ) : (
               <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-indigo-500 dark:bg-indigo-400" />
             )}
-            <span className="text-sm font-medium">{healthToast.message}</span>
+            <span className="text-sm font-medium">{translateMessage(healthToast.message, healthToast)}</span>
           </div>
         </div>
       )}
@@ -2032,7 +2036,7 @@ export default function App() {
 
               {error && !loading && (
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
-                  <p className="text-red-800 dark:text-red-200">{error}</p>
+                  <p className="text-red-800 dark:text-red-200">{translateMessage(error)}</p>
                 </div>
               )}
 
@@ -2043,12 +2047,10 @@ export default function App() {
                   <div className="text-center py-24 text-slate-500 dark:text-slate-400 flex flex-col items-center animate-in fade-in-0 duration-300">
                     <BarChart3 className="h-16 w-16 mb-4 text-slate-400" />
                     <h2 className="text-xl font-semibold text-slate-700 dark:text-slate-300">
-                      Dashboard Home
+                      {t("Dashboard Home")}
                     </h2>
                     <p className="mt-2 max-w-md">
-                      Select a server from the sidebar to view its ports, system
-                      information, and more. Use the "Add Server" button to
-                      connect to new local or remote environments.
+                      {t("Select a server from the sidebar to view its ports, system information, and more. Use the \"Add Server\" button to connect to new local or remote environments.")}
                     </p>
                   </div>
                 )
@@ -2056,8 +2058,7 @@ export default function App() {
 
               {!loading && noDataForSelection && (
                 <div className="text-center py-12 text-gray-500 dark:text-slate-400">
-                  No data available for the selected server. It might be offline
-                  or misconfigured.
+                  {t("No data available for the selected server. It might be offline or misconfigured.")}
                 </div>
               )}
 
@@ -2076,28 +2077,27 @@ export default function App() {
       <Dialog open={noteModalOpen} onOpenChange={setNoteModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Port Note</DialogTitle>
+            <DialogTitle>{t("Edit Port Note")}</DialogTitle>
             <DialogDescription>
-              Add or edit a note for this port to help remember its purpose or
-              configuration.
+              {t("Add or edit a note for this port to help remember its purpose or configuration.")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="note">Note</Label>
+              <Label htmlFor="note">{t("Note")}</Label>
               <Input
                 id="note"
                 value={draftNote}
                 onChange={(e) => setDraftNote(e.target.value)}
-                placeholder="Add a note..."
+                placeholder={t("Add a note...")}
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setNoteModalOpen(false)}>
-              Cancel
+              {t("Cancel")}
             </Button>
-            <Button onClick={saveNoteModal}>Save</Button>
+            <Button onClick={saveNoteModal}>{t("Save")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -2261,11 +2261,11 @@ export default function App() {
           copy: null 
         })), 1500);
       } else {
-        prompt("Copy this URL:", text);
+        prompt(t("Copy this URL:"), text);
       }
     } catch (err) {
       logger.warn("Copy failed:", err);
-      prompt("Copy this URL:", text);
+      prompt(t("Copy this URL:"), text);
     } finally {
       document.body.removeChild(textArea);
     }

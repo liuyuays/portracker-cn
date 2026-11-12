@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -25,6 +26,7 @@ export function ServiceRenameModal({
   onSave,
   loading = false,
 }) {
+  const { t } = useTranslation();
   const [customName, setCustomName] = useState("");
   const [isDirty, setIsDirty] = useState(false);
 
@@ -93,28 +95,28 @@ export function ServiceRenameModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Rename Service</DialogTitle>
+          <DialogTitle>{t("Rename Service")}</DialogTitle>
           <DialogDescription>
-            Customize the display name for this service on port {port.host_port}.
+            {t("Customize the display name for this service on port {{port}}.", { port: port.host_port })}
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="service-name">Service Name</Label>
+            <Label htmlFor="service-name">{t("Service Name")}</Label>
             <Input
               id="service-name"
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Enter custom service name..."
+              placeholder={t("Enter custom service name...")}
               className="w-full"
               disabled={loading}
               autoFocus
             />
             {hasCustomName && (
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Original: {port.originalServiceName || port.owner}
+                {t("Original: {{name}}", { name: port.originalServiceName || port.owner })}
               </p>
             )}
           </div>
@@ -127,7 +129,7 @@ export function ServiceRenameModal({
               onClick={onClose}
               disabled={loading}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button 
               onClick={handleSave}
@@ -137,10 +139,10 @@ export function ServiceRenameModal({
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
+                  {t("Saving...")}
                 </>
               ) : (
-                "Save"
+                t("Save")
               )}
             </Button>
           </div>
@@ -153,7 +155,7 @@ export function ServiceRenameModal({
               className="sm:order-0 text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
             >
               <RotateCcw className="h-4 w-4 mr-2" />
-              Reset to Original
+              {t("Reset to Original")}
             </Button>
           )}
         </DialogFooter>

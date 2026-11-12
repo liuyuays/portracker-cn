@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import React, { useState, useEffect, useMemo } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import {
@@ -50,10 +52,11 @@ export function AppHeader({
   autoxposeStatus = null,
   searchInputRef,
 }) {
+  const { t } = useTranslation();
   const auth = useAuth();
   const selectedBinding = bindingOptions.find(option => option.value === filters.binding) || bindingOptions[0];
   const bindingActive = selectedBinding.value !== 'all';
-  const filterMenuLabel = bindingActive ? `Search & filters: ${selectedBinding.label}` : 'Search & filters';
+  const filterMenuLabel = bindingActive ? t('Search & filters: {{binding}}', { binding: t(selectedBinding.label) }) : t("Search & filters");
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
   const [searching, setSearching] = useState(false);
   const isMac = useMemo(
@@ -71,19 +74,19 @@ export function AppHeader({
         activeClass:
           "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
         onClick: () => onFilterChange({ ...filters, docker: !filters.docker }),
-        title: filters.docker ? "Disable Docker filter" : "Enable Docker filter",
+        title: filters.docker ? t("Disable Docker filter") : t("Enable Docker filter"),
       },
       {
         key: "system",
-        label: "System",
+        label: t("System"),
         isActive: filters.system,
         activeClass:
           "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
         onClick: () => onFilterChange({ ...filters, system: !filters.system }),
-        title: filters.system ? "Disable System filter" : "Enable System filter",
+        title: filters.system ? t("Disable System filter") : t("Enable System filter"),
       },
     ],
-    [filters, onFilterChange]
+    [filters, onFilterChange, t]
   );
 
   const searchIcon = useMemo(
@@ -147,7 +150,7 @@ export function AppHeader({
           <button
             onClick={onToggleSidebar}
             className="p-2 -ml-2 rounded-md md:hidden text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-            aria-label="Open sidebar"
+            aria-label={t("Open sidebar")}
           >
             <Menu className="h-6 w-6" />
           </button>
@@ -166,6 +169,7 @@ export function AppHeader({
             </div>
             <span className="tracking-tighter">portracker</span>
           </button>
+          <LanguageSwitcher className="ml-auto shrink-0 md:hidden" />
         </div>
 
         <div className="flex items-center flex-wrap justify-center md:justify-end gap-x-4 gap-y-2 w-full md:w-auto">
@@ -176,7 +180,7 @@ export function AppHeader({
             <Input
               ref={searchInputRef}
               type="text"
-              placeholder="Search ports, processes..."
+              placeholder={t("Search ports, processes...")}
               className={`pl-10 ${getInputPadding()} w-full max-w-[36rem] sm:max-w-[28rem] md:max-w-[32rem] lg:max-w-[40rem] border-gray-300 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent`}
               value={localSearchTerm}
               onChange={(e) => setLocalSearchTerm(e.target.value)}
@@ -190,7 +194,7 @@ export function AppHeader({
                       {searchShortcutLabel}
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent>Focus search • {isMac ? "Cmd+K" : "Ctrl+K"}</TooltipContent>
+                  <TooltipContent>{t("Focus search •")} {isMac ? "Cmd+K" : "Ctrl+K"}</TooltipContent>
                 </Tooltip>
               )}
               {localSearchTerm && (
@@ -206,7 +210,7 @@ export function AppHeader({
                       <X className="h-4 w-4" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent>Clear search • Esc</TooltipContent>
+                  <TooltipContent>{t("Clear search • Esc")}</TooltipContent>
                 </Tooltip>
               )}
             </div>
@@ -231,19 +235,19 @@ export function AppHeader({
             </Tooltip>
             <DropdownMenuContent align="end" className="w-56" onOpenAutoFocus={e => e.preventDefault()}>
               <TooltipProvider delayDuration={500} skipDelayDuration={0}>
-                <div className="px-2 pt-1 pb-2 text-xs text-slate-500">Search scope</div>
+                <div className="px-2 pt-1 pb-2 text-xs text-slate-500">{t("Search scope")}</div>
                 <DropdownMenuRadioGroup value={searchScope} onValueChange={onSearchScopeChange}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <DropdownMenuRadioItem value="server">Server</DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="server">{t("Server")}</DropdownMenuRadioItem>
                     </TooltipTrigger>
-                    <TooltipContent>Search only the selected server</TooltipContent>
+                    <TooltipContent>{t("Search only the selected server")}</TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <DropdownMenuRadioItem value="all">Global</DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="all">{t("Global")}</DropdownMenuRadioItem>
                     </TooltipTrigger>
-                    <TooltipContent>Search across all servers</TooltipContent>
+                    <TooltipContent>{t("Search across all servers")}</TooltipContent>
                   </Tooltip>
                 </DropdownMenuRadioGroup>
                 <DropdownMenuSeparator />
@@ -253,20 +257,20 @@ export function AppHeader({
                       checked={!!searchHighlighting}
                       onCheckedChange={(v) => onSearchHighlightingChange(!!v)}
                     >
-                      Highlight
+                      {t("Highlight")}
                     </DropdownMenuCheckboxItem>
                   </TooltipTrigger>
-                  <TooltipContent>Highlight matching text in results</TooltipContent>
+                  <TooltipContent>{t("Highlight matching text in results")}</TooltipContent>
                 </Tooltip>
                 <DropdownMenuSeparator />
-                <div className="px-2 pt-1 pb-2 text-xs text-slate-500">Listening address</div>
+                <div className="px-2 pt-1 pb-2 text-xs text-slate-500">{t("Listening address")}</div>
                 <DropdownMenuRadioGroup
-                  aria-label="Listening address"
+                  aria-label={t("Listening address")}
                   value={selectedBinding.value}
                   onValueChange={binding => onFilterChange(previous => ({ ...previous, binding }))}
                 >
                   {bindingOptions.map(option => (
-                    <DropdownMenuRadioItem key={option.value} value={option.value}>{option.label}</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem key={option.value} value={option.value}>{t(option.label)}</DropdownMenuRadioItem>
                   ))}
                 </DropdownMenuRadioGroup>
               </TooltipProvider>
@@ -303,13 +307,14 @@ export function AppHeader({
                 variant="ghost"
                 size="icon"
                 onClick={onRefresh}
+                aria-label={t("Refresh all data")}
                 disabled={loading}
                 className="hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 {refreshIcon}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{loading ? "Refreshing..." : `Refresh all data • ${isMac ? "Cmd+R" : "Ctrl+R"}`}</TooltipContent>
+            <TooltipContent>{loading ? t("Refreshing...") : t('Refresh all data • {{shortcut}}', { shortcut: isMac ? 'Cmd+R' : 'Ctrl+R' })}</TooltipContent>
           </Tooltip>
 
           {onAutoRefreshToggle && (
@@ -319,6 +324,7 @@ export function AppHeader({
                   variant="ghost"
                   size="icon"
                   onClick={onAutoRefreshToggle}
+                  aria-label={autoRefreshEnabled ? t("Disable auto-refresh") : t("Enable auto-refresh")}
                   className={`hover:bg-gray-100 dark:hover:bg-gray-800 ${
                     autoRefreshEnabled ? 'text-indigo-600 dark:text-indigo-400' : ''
                   }`}
@@ -328,8 +334,8 @@ export function AppHeader({
               </TooltipTrigger>
               <TooltipContent>
                 {autoRefreshEnabled 
-                  ? `Auto-refresh enabled (${refreshInterval >= 60000 ? `${refreshInterval / 60000}min` : `${refreshInterval / 1000}s`})` 
-                  : "Enable auto-refresh"}
+                  ? t('Auto-refresh enabled ({{interval}})', { interval: refreshInterval >= 60000 ? t('{{count}}min', { count: refreshInterval / 60000 }) : t('{{count}}s', { count: refreshInterval / 1000 }) })
+                  : t("Enable auto-refresh")}
               </TooltipContent>
             </Tooltip>
           )}
@@ -343,6 +349,7 @@ export function AppHeader({
                   variant="ghost"
                   size="icon"
                   onClick={onShowWhatsNew}
+                  aria-label={t("What's new")}
                   className={`relative hover:bg-gray-100 dark:hover:bg-gray-800 ${
                     hasNewFeatures ? 'text-indigo-600 dark:text-indigo-400 animate-pulse' : ''
                   }`}
@@ -354,7 +361,7 @@ export function AppHeader({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                {hasNewFeatures ? "See what's new!" : "What's new"}
+                {hasNewFeatures ? t("See what's new!") : t("What's new")}
               </TooltipContent>
             </Tooltip>
           )}
@@ -365,6 +372,7 @@ export function AppHeader({
                 variant="ghost"
                 size="icon"
                 onClick={onThemeToggle}
+                aria-label={isDarkMode ? t("Switch to light mode") : t("Switch to dark mode")}
                 className="hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 {isDarkMode ? (
@@ -374,8 +382,10 @@ export function AppHeader({
                 )}
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{isDarkMode ? "Switch to light mode" : "Switch to dark mode"}</TooltipContent>
+            <TooltipContent>{isDarkMode ? t("Switch to light mode") : t("Switch to dark mode")}</TooltipContent>
           </Tooltip>
+
+          <LanguageSwitcher className="hidden md:inline-flex" />
 
           {hackerMode && onDisableHackerMode && (
             <Button
@@ -384,7 +394,7 @@ export function AppHeader({
               className="text-emerald-500 border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10"
               onClick={onDisableHackerMode}
             >
-              Exit Hacker Mode
+              {t("Exit Hacker Mode")}
             </Button>
           )}
 
@@ -401,7 +411,7 @@ export function AppHeader({
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
-              <TooltipContent>{auth.authEnabled && auth.authenticated ? "Account" : "Menu"}</TooltipContent>
+              <TooltipContent>{auth.authEnabled && auth.authenticated ? t("Account") : t("Menu")}</TooltipContent>
             </Tooltip>
             <DropdownMenuContent align="end" className="w-48">
               {auth.authEnabled && auth.authenticated && (
@@ -415,13 +425,13 @@ export function AppHeader({
               {onOpenSettings && (
                 <DropdownMenuItem onClick={onOpenSettings}>
                   <Settings className="mr-2 h-4 w-4" />
-                  Settings
+                  {t("Settings")}
                 </DropdownMenuItem>
               )}
               {auth.authEnabled && auth.authenticated && onOpenApiKey && (
                 <DropdownMenuItem onClick={onOpenApiKey}>
                   <Key className="mr-2 h-4 w-4" />
-                  API Key
+                  {t("API Key")}
                 </DropdownMenuItem>
               )}
               {auth.authEnabled && auth.authenticated && (
@@ -429,7 +439,7 @@ export function AppHeader({
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={auth.logout} className="text-red-600 dark:text-red-400">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Logout
+                    {t("Logout")}
                   </DropdownMenuItem>
                 </>
               )}

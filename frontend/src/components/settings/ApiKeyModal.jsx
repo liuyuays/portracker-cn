@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export function ApiKeyModal({ isOpen, onClose }) {
+  const { t, i18n } = useTranslation();
   const [apiKey, setApiKey] = useState(null);
   const [keyInfo, setKeyInfo] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -115,7 +117,7 @@ export function ApiKeyModal({ isOpen, onClose }) {
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, {
+    return date.toLocaleDateString(i18n.resolvedLanguage || i18n.language, {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -131,7 +133,7 @@ export function ApiKeyModal({ isOpen, onClose }) {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
-              API Key
+              {t("API Key")}
             </DialogTitle>
           </DialogHeader>
 
@@ -144,7 +146,7 @@ export function ApiKeyModal({ isOpen, onClose }) {
 
             {error && (
               <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg text-sm text-red-600 dark:text-red-400">
-                {error}
+                {t(error)}
               </div>
             )}
 
@@ -154,7 +156,7 @@ export function ApiKeyModal({ isOpen, onClose }) {
                   <div className="flex items-start gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
                     <p className="text-xs text-amber-700 dark:text-amber-300">
-                      Copy this key now. It won't be shown again.
+                      {t("Copy this key now. It won't be shown again.")}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -181,7 +183,7 @@ export function ApiKeyModal({ isOpen, onClose }) {
                           )}
                         </Button>
                       </TooltipTrigger>
-                      <TooltipContent>{copied ? "Copied!" : "Copy"}</TooltipContent>
+                      <TooltipContent>{copied ? t("Copied!") : t("Copy")}</TooltipContent>
                     </Tooltip>
                   </div>
                 </div>
@@ -194,14 +196,14 @@ export function ApiKeyModal({ isOpen, onClose }) {
                   <div className="space-y-3">
                     <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                       <p className="text-sm text-slate-600 dark:text-slate-400">
-                        API key generated on
+                        {t("API key generated on")}
                       </p>
                       <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
                         {formatDate(keyInfo.createdAt)}
                       </p>
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      The key is hidden for security. Regenerate to create a new one.
+                      {t("The key is hidden for security. Regenerate to create a new one.")}
                     </p>
                     <Button
                       variant="outline"
@@ -210,13 +212,13 @@ export function ApiKeyModal({ isOpen, onClose }) {
                       className="w-full"
                     >
                       <RefreshCw className="h-4 w-4 mr-2" />
-                      Regenerate Key
+                      {t("Regenerate Key")}
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                      Generate an API key to allow other portracker instances to scan this server.
+                      {t("Generate an API key to allow other portracker instances to scan this server.")}
                     </p>
                     <Button onClick={generateKey} className="w-full" disabled={loading}>
                       {loading ? (
@@ -224,7 +226,7 @@ export function ApiKeyModal({ isOpen, onClose }) {
                       ) : (
                         <Key className="h-4 w-4 mr-2" />
                       )}
-                      Generate API Key
+                      {t("Generate API Key")}
                     </Button>
                   </div>
                 )}
@@ -234,7 +236,7 @@ export function ApiKeyModal({ isOpen, onClose }) {
 
           <DialogFooter>
             <Button variant="outline" size="sm" onClick={onClose}>
-              Done
+              {t("Done")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -243,15 +245,15 @@ export function ApiKeyModal({ isOpen, onClose }) {
       <AlertDialog open={showRegenerateConfirm} onOpenChange={setShowRegenerateConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Regenerate API Key?</AlertDialogTitle>
+            <AlertDialogTitle>{t("Regenerate API Key?")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will invalidate the current API key. Any external systems using the old key will no longer be able to access this server.
+              {t("This will invalidate the current API key. Any external systems using the old key will no longer be able to access this server.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmRegenerate}>
-              Regenerate
+              {t("Regenerate")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

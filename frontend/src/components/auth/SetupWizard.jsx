@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { KeyRound, ShieldCheck } from 'lucide-react';
 
 export function SetupWizard() {
+  const { t } = useTranslation();
   const { setup } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -44,8 +47,11 @@ export function SetupWizard() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4">
-      <div className="w-full max-w-lg">
+    <div className="min-h-screen flex flex-col items-center bg-slate-50 dark:bg-slate-950 p-4">
+      <div className="w-full flex justify-end mb-4">
+        <LanguageSwitcher />
+      </div>
+      <div className="w-full max-w-lg my-auto">
         <div className="bg-white dark:bg-slate-900 rounded-lg shadow-lg border border-slate-200 dark:border-slate-800 p-8">
           <div className="flex flex-col items-center mb-8">
             <div className="mb-4 relative group">
@@ -55,10 +61,10 @@ export function SetupWizard() {
               </div>
             </div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-              Welcome to portracker
+              {t('Welcome to portracker')}
             </h1>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 text-center">
-              Create your admin account to secure your instance
+              {t('Create your admin account to secure your instance')}
             </p>
           </div>
 
@@ -67,10 +73,10 @@ export function SetupWizard() {
               <KeyRound className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-0.5 flex-shrink-0" />
               <div>
                 <h3 className="font-semibold text-indigo-900 dark:text-indigo-100 text-sm">
-                  First-Time Setup
+                  {t('First-Time Setup')}
                 </h3>
                 <p className="text-sm text-indigo-700 dark:text-indigo-300 mt-1">
-                  Choose a strong password. This account will have full access to your portracker instance.
+                  {t('Choose a strong password. This account will have full access to your portracker instance.')}
                 </p>
               </div>
             </div>
@@ -78,13 +84,13 @@ export function SetupWizard() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-slate-700 dark:text-slate-300">Admin Username</Label>
+              <Label htmlFor="username" className="text-slate-700 dark:text-slate-300">{t('Admin Username')}</Label>
               <Input
                 id="username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Admin username"
+                placeholder={t('Admin username')}
                 required
                 autoComplete="username"
                 disabled={loading}
@@ -93,22 +99,22 @@ export function SetupWizard() {
               {username && (
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {username.length >= 3 ? (
-                    <span className="text-green-600 dark:text-green-400">✓ Valid username</span>
+                    <span className="text-green-600 dark:text-green-400">{t('✓ Valid username')}</span>
                   ) : (
-                    <span>At least 3 characters required</span>
+                    <span>{t('At least 3 characters required')}</span>
                   )}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-700 dark:text-slate-300">Password</Label>
+              <Label htmlFor="password" className="text-slate-700 dark:text-slate-300">{t('Password')}</Label>
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
+                placeholder={t('Password')}
                 required
                 autoComplete="new-password"
                 disabled={loading}
@@ -117,22 +123,22 @@ export function SetupWizard() {
               {password && (
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {password.length >= 8 ? (
-                    <span className="text-green-600 dark:text-green-400">✓ Valid password</span>
+                    <span className="text-green-600 dark:text-green-400">{t('✓ Valid password')}</span>
                   ) : (
-                    <span>At least 8 characters required</span>
+                    <span>{t('At least 8 characters required')}</span>
                   )}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-slate-700 dark:text-slate-300">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" className="text-slate-700 dark:text-slate-300">{t('Confirm Password')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm password"
+                placeholder={t('Confirm password')}
                 required
                 autoComplete="new-password"
                 disabled={loading}
@@ -141,9 +147,9 @@ export function SetupWizard() {
               {confirmPassword && (
                 <p className="text-xs">
                   {password === confirmPassword ? (
-                    <span className="text-green-600 dark:text-green-400">✓ Passwords match</span>
+                    <span className="text-green-600 dark:text-green-400">{t('✓ Passwords match')}</span>
                   ) : (
-                    <span className="text-red-600 dark:text-red-400">✗ Passwords do not match</span>
+                    <span className="text-red-600 dark:text-red-400">{t('✗ Passwords do not match')}</span>
                   )}
                 </p>
               )}
@@ -152,7 +158,7 @@ export function SetupWizard() {
             {error && (
               <div className="p-3 rounded-md bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900">
                 <p className="text-sm text-red-800 dark:text-red-200">
-                  {error}
+                  {t(error)}
                 </p>
               </div>
             )}
@@ -162,7 +168,7 @@ export function SetupWizard() {
               disabled={loading || username.length < 3 || password.length < 8 || password !== confirmPassword}
               className="w-full h-10 bg-indigo-600 hover:bg-indigo-700 text-white"
             >
-              {loading ? 'Creating Account...' : 'Create Admin Account'}
+              {loading ? t('Creating Account...') : t('Create Admin Account')}
             </Button>
           </form>
 

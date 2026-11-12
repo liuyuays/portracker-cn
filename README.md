@@ -23,6 +23,8 @@
 
 By auto-discovering services on your systems, portracker provides a live, accurate map of your network. It helps eliminate manual tracking in spreadsheets and prevents deployment failures caused by port conflicts.
 
+中文 Fork 文档：[同步上游与维护汉化](docs/LOCALIZATION.md) · [Docker Compose 部署与打包](docs/DOCKER_COMPOSE_CN.md)。
+
 ---
 
 ## Key Features

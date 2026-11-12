@@ -68,7 +68,7 @@ test('packages current source with one merged docker-compose.yaml deployment fil
   const compose = yaml.safeLoad(await fs.readFile(path.join(output, 'docker-compose.yaml'), 'utf8'));
   assert.equal(compose.services.portracker.image, 'portracker-cn:local');
   assert.equal(compose.services.portracker.build, '.');
-  assert.equal(compose.services.portracker.volumes[0], './portracker-data:/data');
+  assert.equal(compose.services.portracker.volumes[0], '../portracker-data:/data');
   await absent(path.join(output, 'compose.yaml'));
   await absent(path.join(output, 'compose.override.yaml'));
   assert.equal(await fs.readFile(path.join(output, 'Dockerfile'), 'utf8'), await fs.readFile(path.join(root, 'Dockerfile'), 'utf8'));
@@ -76,7 +76,9 @@ test('packages current source with one merged docker-compose.yaml deployment fil
     await fs.access(path.join(output, name));
   }
   assert.match(await fs.readFile(path.join(output, 'README.md'), 'utf8'), /docker compose up -d --build/);
-  assert.match(await fs.readFile(path.join(output, '.env.example'), 'utf8'), /ENABLE_AUTH=true/);
+  assert.match(await fs.readFile(path.join(output, '.env.example'), 'utf8'), /^ENABLE_AUTH=false$/m);
+  assert.match(await fs.readFile(path.join(output, 'README.md'), 'utf8'), /默认关闭登录认证/);
+  assert.match(await fs.readFile(path.join(output, 'README.md'), 'utf8'), /\.\.\/portracker-data/);
 });
 
 test('excludes dependencies, generated builds, tests, secrets, databases and machine files', async t => {
@@ -173,7 +175,7 @@ test('merges upstream settings with localized build and environment without reso
   assert.deepEqual(service.build, { context: '.', dockerfile: 'Dockerfile' });
   assert.deepEqual(service.environment, { KEEP: 'upstream', ENABLE_AUTH: '${ENABLE_AUTH:-true}', UNSET: null, WITH_EQUALS: 'a=b=c', SESSION_SECRET: '${SESSION_SECRET:-}' });
   assert.deepEqual(service.ports, ['4999:4999']);
-  assert.deepEqual(service.volumes, ['./portracker-data:/data']);
+  assert.deepEqual(service.volumes, ['../portracker-data:/data']);
   assert.equal(service.healthcheck.interval, '30s');
   assert.deepEqual(service.command, ['node', 'index.js']);
   assert.deepEqual(service.healthcheck.test, ['CMD', 'wget', 'http://localhost:4999/api/health?new']);
@@ -199,6 +201,26 @@ test('upgrading a previously packaged directory removes both legacy Compose file
   await absent(path.join(output, 'compose.override.yaml'));
   assert.equal(await fs.readFile(path.join(output, '.env'), 'utf8'), 'SESSION_SECRET=keep-this');
   assert.equal(await fs.readFile(path.join(output, 'portracker-data/portracker.db'), 'utf8'), 'keep-data');
+});
+
+test('moves only the packaged data directory to the parent of the deployment directory', async t => {
+  const root = await fixture(t);
+  await write(root, 'docker-compose.yml', yaml.safeDump({
+    services: {
+      portracker: { image: 'upstream:latest', volumes: ['./portracker-data:/data:rw', '/var/run/docker.sock:/var/run/docker.sock:ro', './portracker-data-extra:/extra'] },
+      other: { image: 'x', volumes: [{ type: 'bind', source: './portracker-data', target: '/data' }, { type: 'bind', source: './config', target: '/config' }] },
+    },
+  }));
+  await runPackage(root);
+  const combined = yaml.safeLoad(await fs.readFile(path.join(root, 'deploy/app/docker-compose.yaml'), 'utf8'));
+  assert.deepEqual(combined.services.portracker.volumes, ['../portracker-data:/data:rw', '/var/run/docker.sock:/var/run/docker.sock:ro', './portracker-data-extra:/extra']);
+  assert.deepEqual(combined.services.other.volumes, [{ type: 'bind', source: '../portracker-data', target: '/data' }, { type: 'bind', source: './config', target: '/config' }]);
+  assert.match(await fs.readFile(path.join(root, 'docker-compose.yml'), 'utf8'), /\.\/portracker-data:\/data/);
+});
+
+test('source localized compose overlay disables authentication by default', async () => {
+  const overlay = yaml.safeLoad(await fs.readFile(path.join(repository, 'compose.cn.yaml'), 'utf8'));
+  assert.equal(overlay.services.portracker.environment.ENABLE_AUTH, '${ENABLE_AUTH:-false}');
 });
 
 test('unsupported sequence overrides fail before packaging instead of silently changing Compose merge semantics', async t => {

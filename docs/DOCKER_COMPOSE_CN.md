@@ -1,6 +1,6 @@
 # 使用 Docker Compose 部署汉化版
 
-汉化版需要用当前源码构建镜像。原有 `docker-compose.yml` 指向官方镜像；本项目新增 `compose.cn.yaml`，叠加后改为本地构建 `portracker-cn:local`，并默认开启登录认证。
+汉化版需要用当前源码构建镜像。原有 `docker-compose.yml` 指向官方镜像；本项目新增 `compose.cn.yaml`，叠加后改为本地构建 `portracker-cn:local`，登录认证默认关闭，可在 `.env` 中设置 `ENABLE_AUTH=true` 开启。
 
 两个配置文件一起使用，继续继承上游的端口、重启策略、SQLite 数据目录、Docker socket、进程命名空间、权限和健康检查设置。后续同步上游时，部署覆盖文件可以独立保留。
 
@@ -21,9 +21,9 @@ docker compose -f docker-compose.yaml config --quiet
 docker compose -f docker-compose.yaml up -d --build
 ~~~
 
-打包时读取源码目录中的 `docker-compose.yml` 和 `compose.cn.yaml`，合成部署包内唯一的 `docker-compose.yaml`，因此部署时不再需要手动传两个 `-f` 参数。`README.md` 包含部署步骤，`.env.example` 提供可选配置模板；镜像在部署主机上联网构建。
+打包时读取源码目录中的 `docker-compose.yml` 和 `compose.cn.yaml`，合成部署包内唯一的 `docker-compose.yaml`，因此部署时不再需要手动传两个 `-f` 参数。部署包把数据目录挂载为上一级的 `../portracker-data`，数据库与部署文件分开存放，替换或删除部署目录不会影响数据；源码目录的两层配置仍使用 `./portracker-data`。`README.md` 包含部署步骤，`.env.example` 提供可选配置模板；镜像在部署主机上联网构建。
 
-重复打包会根据 `.portracker-package.json` 清单更新生成文件并清理过期源码，同时保留输出目录已有的 `.env`、`portracker-data/` 和其他非生成文件。请保留该清单；对生成的源码和 Compose 配置所做的手工修改会被下次打包覆盖。复制新包到正在使用的服务器目录时，也要保留 `.env` 和数据目录。
+重复打包会根据 `.portracker-package.json` 清单更新生成文件并清理过期源码，同时保留输出目录已有的 `.env` 和其他非生成文件。请保留该清单；对生成的源码和 Compose 配置所做的手工修改会被下次打包覆盖。复制新包到正在使用的服务器目录时，也要保留 `.env`。
 
 旧版部署包中的 `compose.yaml` 和 `compose.override.yaml` 会在重新打包时根据清单自动移除。若服务器仍留有旧文件，更新时显式运行 `docker compose -f docker-compose.yaml up -d --build`，避免自动选中旧配置。合并不会读取本机 `.env`、展开环境变量或把相对路径转换为本机绝对路径。
 
@@ -54,7 +54,7 @@ cd /opt/portracker-cn
 
 ## 2. 配置环境变量
 
-可以直接启动：默认开启登录认证；未提供 SESSION_SECRET 时后端会生成随机签名密钥。首次访问通过初始化向导创建管理员账户。
+可以直接启动：登录认证默认关闭，任何能访问 4999 端口的人都可以使用界面，请只在可信网络中这样部署。需要登录保护时设置 `ENABLE_AUTH=true`，首次访问通过初始化向导创建管理员账户；未提供 SESSION_SECRET 时后端会生成随机签名密钥。
 
 如需显式配置，在项目根目录创建或编辑 `.env`：
 
@@ -105,7 +105,7 @@ docker compose -f docker-compose.yml -f compose.cn.yaml logs --tail=100 -f portr
 npm run package:docker
 ~~~
 
-把 `deploy/app` 的完整内容（包含 `.dockerignore`、`.portracker-package.json` 等隐藏文件）同步到服务器原部署目录，保留服务器已有的 `.env`、`portracker-data/` 和自行添加的非生成文件。打包清单负责清理当前机器输出目录中的过期源码；上传到另一台机器时，也要根据新旧清单同步移除远端过期的生成文件，普通的覆盖复制不会自动删除它们。
+把 `deploy/app` 的完整内容（包含 `.dockerignore`、`.portracker-package.json` 等隐藏文件）同步到服务器原部署目录，保留服务器已有的 `.env` 和自行添加的非生成文件。打包清单负责清理当前机器输出目录中的过期源码；上传到另一台机器时，也要根据新旧清单同步移除远端过期的生成文件，普通的覆盖复制不会自动删除它们。
 
 在服务器的部署包目录中执行：
 
@@ -117,6 +117,8 @@ docker compose -f docker-compose.yaml logs --tail=100 portracker
 ~~~
 
 显式指定 `docker-compose.yaml` 可以避免服务器残留的旧 `compose.yaml` 或 `compose.override.yaml` 被自动选中。
+
+旧版部署包把数据放在部署目录内的 `portracker-data/`。升级到新版部署包时先停止服务，把该目录移到部署目录的上一级，再启动；否则会以空数据库启动。旧版默认开启登录认证，升级后若需保持登录保护，在 `.env` 中设置 `ENABLE_AUTH=true`。
 
 **直接从完整源码部署时**，在服务器的源码目录同步自己的仓库，再使用原来的两层配置：
 
@@ -136,7 +138,7 @@ docker compose -f docker-compose.yml -f compose.cn.yaml logs --tail=100 portrack
 docker compose -f docker-compose.yml -f compose.cn.yaml down
 ```
 
-继续使用同一个 `portracker-data` 目录即可复用数据库。升级前备份数据；对 SQLite 数据目录做文件备份时，先停止服务，备份后再启动。
+继续使用同一个数据目录即可复用数据库（部署包为上一级的 `portracker-data`，完整源码部署为项目目录下的 `portracker-data`）。升级前备份数据；对 SQLite 数据目录做文件备份时，先停止服务，备份后再启动。
 
 已有官方版本时，先使用原来的 Compose 配置停止原容器，并备份数据。新部署应挂载原来的数据目录；跨目录迁移时修改原配置中的数据挂载或在覆盖文件中用相同的 /data 容器路径覆盖它。两套配置都使用容器名 portracker，不能同时占用这个名称。
 

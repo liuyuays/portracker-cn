@@ -237,7 +237,7 @@ git branch -d codex/sync-localization
 npm run package:docker
 ~~~
 
-按[Docker Compose 部署文档](DOCKER_COMPOSE_CN.md#4-更新汉化版)将 `deploy/app` 的完整内容（包含隐藏文件）同步到原部署目录，保留服务器已有的 `.env` 和 `portracker-data`，再在服务器的部署包目录运行：
+按[Docker Compose 部署文档](DOCKER_COMPOSE_CN.md#4-更新汉化版)将 `deploy/app` 的完整内容（包含隐藏文件）同步到原部署目录，保留服务器已有的 `.env`（数据位于部署目录上一级的 `portracker-data`，不受同步影响），再在服务器的部署包目录运行：
 
 ~~~sh
 docker compose -f docker-compose.yaml config --quiet

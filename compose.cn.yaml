@@ -7,5 +7,5 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      ENABLE_AUTH: "${ENABLE_AUTH:-true}"
+      ENABLE_AUTH: "${ENABLE_AUTH:-false}"
       SESSION_SECRET: "${SESSION_SECRET:-}"

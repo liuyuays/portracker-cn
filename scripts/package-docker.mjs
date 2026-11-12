@@ -119,6 +119,26 @@ function mergeComposeValue(base, override, location = []) {
   return result;
 }
 
+const sourceDataDirectory = './portracker-data';
+const deployedDataDirectory = '../portracker-data';
+
+function moveDataDirectory(volume) {
+  if (typeof volume === 'string') {
+    return volume === sourceDataDirectory || volume.startsWith(sourceDataDirectory + ':')
+      ? deployedDataDirectory + volume.slice(sourceDataDirectory.length)
+      : volume;
+  }
+  if (mapping(volume) && volume.source === sourceDataDirectory) return { ...volume, source: deployedDataDirectory };
+  return volume;
+}
+
+function relocateDataVolumes(config) {
+  for (const service of Object.values(config.services)) {
+    if (mapping(service) && Array.isArray(service.volumes)) service.volumes = service.volumes.map(moveDataDirectory);
+  }
+  return config;
+}
+
 async function deploymentCompose(projectRoot) {
   const configurations = [];
   for (const name of ['docker-compose.yml', 'compose.cn.yaml']) {
@@ -127,7 +147,7 @@ async function deploymentCompose(projectRoot) {
     if (!mapping(config) || !mapping(config.services)) throw new Error(name + ' 缺少有效的 services 配置。');
     configurations.push(config);
   }
-  const merged = mergeComposeValue(configurations[0], configurations[1]);
+  const merged = relocateDataVolumes(mergeComposeValue(configurations[0], configurations[1]));
   return Buffer.from('# 由 npm run package:docker 合并生成；在本目录执行 docker compose up -d --build。\n'
     + yaml.safeDump(merged, { lineWidth: -1, noRefs: true }));
 }
@@ -140,10 +160,10 @@ function deploymentReadme(version) {
     '~~~sh', 'docker compose config --quiet', 'docker compose up -d --build', '~~~', '',
     '本目录只需 docker-compose.yaml 一个 Compose 配置文件，构建本地镜像 portracker-cn:local。首次构建需要联网下载基础镜像、系统软件包和 npm 依赖。', '',
     '从旧版双文件部署包更新时，如果服务器目录仍留有 compose.yaml 或 compose.override.yaml，请显式执行 docker compose -f docker-compose.yaml up -d --build，避免自动选中旧配置。', '',
-    '浏览器访问 http://服务器IP:4999，在右上角选择简体中文。默认开启登录认证，首次访问创建管理员；已有 .env 中的 ENABLE_AUTH 会覆盖默认值。', '',
-    '如需配置，把 .env.example 复制为 .env；可设置 ENABLE_AUTH=true 和 SESSION_SECRET。Linux 上可以用 openssl rand -hex 32 生成随机密钥。未提供密钥时由应用随机生成；重启应用后需要重新登录。', '',
+    '浏览器访问 http://服务器IP:4999，在右上角选择简体中文。默认关闭登录认证；需要登录保护时在 .env 中设置 ENABLE_AUTH=true，开启后首次访问创建管理员。', '',
+    '如需配置，把 .env.example 复制为 .env；可设置 ENABLE_AUTH 和 SESSION_SECRET。Linux 上可以用 openssl rand -hex 32 生成随机密钥。未提供密钥时由应用随机生成；重启应用后需要重新登录。', '',
     '~~~sh', 'docker compose ps', 'docker compose logs --tail=100 -f portracker', '~~~', '',
-    '数据保存在本目录的 portracker-data/。更新时保留 .env 和 portracker-data/，替换打包文件后重新执行 docker compose up -d --build。对 SQLite 数据做文件备份前先停止服务。', '',
+    '数据保存在本目录上一级的 ../portracker-data/，替换或删除本目录不会影响数据。更新时保留 .env，替换打包文件后重新执行 docker compose up -d --build。从旧版部署包升级时，先停止服务，把本目录中的 portracker-data/ 移到上一级，再启动。对 SQLite 数据做文件备份前先停止服务。', '',
     '源码、Compose 配置、.env.example 和本说明由 npm run package:docker 生成，再次打包会覆盖。自定义设置优先放在 .env 中；配置文件的手工改动请另行保存。不要删除 .portracker-package.json，它记录命令管理的文件。', '',
     '打包在项目源码目录执行，本机不需要 Docker；镜像在部署主机上联网构建。', '',
   ].join('\n');
@@ -177,7 +197,7 @@ export async function packageDocker({ projectRoot = repository } = {}) {
   for (const name of ['backend', 'frontend']) await collectDirectory(projectRoot, name, files);
   const metadata = JSON.parse(files.get('package.json').toString('utf8'));
   files.set('README.md', Buffer.from(deploymentReadme(metadata.version)));
-  files.set('.env.example', Buffer.from('ENABLE_AUTH=true\n\n# Optional: use openssl rand -hex 32 to generate a value.\n# SESSION_SECRET=\n'));
+  files.set('.env.example', Buffer.from('# Set to true to require login.\nENABLE_AUTH=false\n\n# Optional: use openssl rand -hex 32 to generate a value.\n# SESSION_SECRET=\n'));
 
   const outputDirectory = path.join(projectRoot, 'deploy', 'app');
   await safePath(projectRoot, outputDirectory);
